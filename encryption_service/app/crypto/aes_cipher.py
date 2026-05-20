@@ -14,10 +14,8 @@ import base64
 import os
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-
 class AESCipher:
     """Cifrador AES-256-GCM para texto plano."""
-
     NONCE_SIZE = 12  # bytes (96 bits, recomendado para GCM)
     KEY_SIZE = 32    # bytes (256 bits)
 

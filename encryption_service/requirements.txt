@@ -1,0 +1,18 @@
+# =============================================================================
+# Helios Encryption Service — Dependencias
+# =============================================================================
+
+# Framework web
+fastapi[standard]>=0.136.0
+uvicorn[standard]>=0.47.0
+
+# gRPC
+grpcio>=1.80.0
+grpcio-tools>=1.80.0
+
+# Cifrado
+cryptography>=48.0.0
+
+# Configuración
+pydantic-settings>=2.14.0
+python-dotenv>=1.2.0
