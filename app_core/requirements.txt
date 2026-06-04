@@ -1,0 +1,14 @@
+# =============================================================================
+# Helios App Core — Dependencias
+# =============================================================================
+
+# Framework web
+flask>=3.1.0
+
+# gRPC (cliente)
+grpcio>=1.80.0
+protobuf>=6.31.1
+
+# Configuración
+pydantic-settings>=2.14.0
+python-dotenv>=1.2.0

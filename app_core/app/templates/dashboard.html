@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Helios{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<p>Bienvenido, <strong>{{ username }}</strong> (rol: {{ role }})</p>
+<p style="color:#666;">Tu nombre de usuario fue descifrado usando el servicio de cifrado vía gRPC.</p>
+
+<h2>Acciones rápidas</h2>
+<ul>
+    <li><a href="/assets/">Gestionar activos de información</a></li>
+    <li><a href="/assets/create">Registrar nuevo activo</a></li>
+</ul>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Nuevo Activo - Helios{% endblock %}
+{% block content %}
+<h1>Registrar nuevo activo</h1>
+<form method="POST">
+    <label for="name">Nombre del activo:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="description">Descripción:</label>
+    <textarea id="description" name="description" rows="3" required></textarea>
+
+    <label for="type">Tipo de activo:</label>
+    <select id="type" name="type">
+        <option value="hardware">Hardware</option>
+        <option value="software">Software</option>
+        <option value="data">Datos</option>
+        <option value="personnel">Personal</option>
+        <option value="service">Servicio</option>
+    </select>
+
+    <button type="submit">Registrar activo</button>
+</form>
+<p style="margin-top:1rem; color:#666;">
+    El nombre y descripción se cifrarán con AES-256-GCM via gRPC antes de almacenarse.
+</p>
+{% endblock %}
