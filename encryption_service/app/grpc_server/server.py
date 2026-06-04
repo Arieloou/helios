@@ -69,7 +69,7 @@ class GRPCServer:
         self._server.add_registered_method_handlers(_SERVICE_NAME, method_handlers)
 
         # Escuchar en el puerto configurado
-        listen_addr = f"[::]:{self._port}"
+        listen_addr = f"0.0.0.0:{self._port}"
         self._server.add_insecure_port(listen_addr)
         self._server.start()
 

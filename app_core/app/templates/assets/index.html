@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Activos - Helios{% endblock %}
+{% block content %}
+<h1>Activos de información</h1>
+<a href="/assets/create">+ Nuevo activo</a>
+
+<p style="color:#666; margin-top:0.5rem;">
+    Los nombres y descripciones se almacenan cifrados y se descifran al mostrar vía gRPC.
+</p>
+
+{% if assets %}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Tipo</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for asset in assets %}
+        <tr>
+            <td>{{ asset.id }}</td>
+            <td>{{ asset.name }}</td>
+            <td>{{ asset.description }}</td>
+            <td>{{ asset.type }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay activos registrados todavía.</p>
+{% endif %}
+{% endblock %}

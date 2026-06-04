@@ -45,8 +45,8 @@ async def lifespan(app: FastAPI):
     grpc_thread.start()
 
     print(f"[FastAPI] Servicio de cifrado iniciado")
-    print(f"    ├── REST API:  http://0.0.0.0:{settings.API_PORT}")
-    print(f"    └── gRPC:      localhost:{settings.GRPC_PORT}")
+    print(f"    REST API:  http://0.0.0.0:{settings.API_PORT}")
+    print(f"    gRPC:      localhost:{settings.GRPC_PORT}")
 
     yield
 

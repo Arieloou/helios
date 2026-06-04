@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Helios{% endblock %}</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; }
+        nav { margin-bottom: 2rem; }
+        nav a { margin-right: 1rem; }
+        .flash { padding: 0.5rem 1rem; border-radius: 4px; margin-bottom: 1rem; }
+        .flash.error { background: #fee; color: #c00; }
+        .flash.success { background: #efe; color: #060; }
+        .flash.info { background: #eef; color: #006; }
+        form label { display: block; margin-top: 0.5rem; font-weight: bold; }
+        form input, form textarea, form select { width: 100%; padding: 0.4rem; margin-top: 0.25rem; box-sizing: border-box; }
+        form button { margin-top: 1rem; padding: 0.5rem 1.5rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="/auth/dashboard">Dashboard</a>
+        <a href="/assets/">Activos</a>
+        {% if session.get("user") %}
+            <a href="/auth/logout">Cerrar sesión</a>
+        {% else %}
+            <a href="/auth/login">Iniciar sesión</a>
+        {% endif %}
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</body>
+</html>
