@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Riesgos Inaceptables - Helios{% endblock %}
+
+{% block content %}
+<h1>Riesgos que Requieren Tratamiento</h1>
+
+{% if not active_assessment %}
+<div style="background: #fff3e0; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    No hay evaluación activa. <a href="/assessments/select">Seleccionar una evaluación</a> primero.
+</div>
+{% else %}
+<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Evaluación activa:</strong> {{ active_assessment.name }}
+</div>
+{% endif %}
+
+<div style="margin-bottom: 1rem;">
+    <a href="/treatment/plans"><button>Ver Planes de Tratamiento</button></a>
+    <a href="/risk/"><button>Ver Mapeos</button></a>
+</div>
+
+{% if risks %}
+<table>
+    <thead>
+        <tr>
+            <th>Activo</th>
+            <th>V_total</th>
+            <th>RI</th>
+            <th>RR</th>
+            <th>Nivel</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for risk in risks %}
+        <tr>
+            <td>{{ risk.asset_name }}</td>
+            <td style="text-align: center;">{{ risk.asset_v_total }}</td>
+            <td style="text-align: center;">{{ risk.risk_inherent or '-' }}</td>
+            <td style="text-align: center;">
+                <span style="background: {{ RiskClassifier.get_risk_color(risk.residual_risk) }}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: bold;">
+                    {{ risk.residual_risk }}
+                </span>
+            </td>
+            <td style="text-align: center;">
+                {{ RiskClassifier.get_risk_level_label(risk.residual_risk) }}
+            </td>
+            <td>
+                {% if risk.has_treatment_plan %}
+                <span style="background: #ff9800; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">Con Plan</span>
+                {% else %}
+                <span style="background: #f44336; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">Sin Plan</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if risk.has_treatment_plan %}
+                <a href="/treatment/plan/{{ risk.plan_id }}">Ver Plan</a>
+                {% else %}
+                <a href="/treatment/plan/{{ risk.id }}/create">Crear Plan</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay riesgos inaceptables (RR >= 12) en esta evaluación.
+   <a href="/risk/">Ver mapeos de riesgos</a></p>
+{% endif %}
+{% endblock %}

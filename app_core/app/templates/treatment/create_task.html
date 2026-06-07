@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Tarea - Helios{% endblock %}
+
+{% block content %}
+<h1>Nueva Tarea</h1>
+
+<p>Plan: {{ RiskClassifier.get_strategy_label(plan.strategy) }}</p>
+
+<form method="POST">
+    <label for="description">Descripción de la Tarea:</label>
+    <textarea name="description" id="description" rows="4" required></textarea>
+
+    <label for="responsible">Responsable (opcional):</label>
+    <input type="text" name="responsible" id="responsible">
+
+    <label for="due_date">Fecha Límite (opcional):</label>
+    <input type="date" name="due_date" id="due_date">
+
+    <div style="margin-top: 1rem;">
+        <button type="submit">Crear Tarea</button>
+        <a href="/treatment/plan/{{ plan.id }}" style="margin-left: 1rem;">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Plan de Tratamiento - Helios{% endblock %}
+
+{% block content %}
+<h1>Crear Plan de Tratamiento</h1>
+
+<div style="background: #e3f2fd; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Activo:</strong> {{ mapping.asset_name }}<br>
+    <strong>V_total:</strong> {{ mapping.asset_v_total }}<br>
+    <strong>Riesgo Inherente:</strong> {{ mapping.risk_inherent }}<br>
+    <strong>Riesgo Residual:</strong> {{ mapping.residual_risk }}
+</div>
+
+<form method="POST">
+    <label for="strategy">Estrategia de Tratamiento:</label>
+    <select name="strategy" id="strategy" required>
+        <option value="mitigate">Mitigar (Reducir el riesgo)</option>
+        <option value="accept">Aceptar (Asumir el riesgo)</option>
+        <option value="transfer">Transferir (Trasladar a terceros)</option>
+    </select>
+
+    <div style="margin-top: 1rem;">
+        <button type="submit">Crear Plan</button>
+        <a href="/treatment/risks" style="margin-left: 1rem;">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Plan de Tratamiento - Helios{% endblock %}
+
+{% block content %}
+<h1>Editar Plan de Tratamiento</h1>
+
+<form method="POST">
+    <label for="strategy">Estrategia:</label>
+    <select name="strategy" id="strategy">
+        <option value="mitigate" {% if plan.strategy == 'mitigate' %}selected{% endif %}>Mitigar</option>
+        <option value="accept" {% if plan.strategy == 'accept' %}selected{% endif %}>Aceptar</option>
+        <option value="transfer" {% if plan.strategy == 'transfer' %}selected{% endif %}>Transferir</option>
+    </select>
+
+    <label for="status">Estado:</label>
+    <select name="status" id="status">
+        <option value="pending" {% if plan.status == 'pending' %}selected{% endif %}>Pendiente</option>
+        <option value="approved" {% if plan.status == 'approved' %}selected{% endif %}>Aprobado</option>
+        <option value="in_progress" {% if plan.status == 'in_progress' %}selected{% endif %}>En Progreso</option>
+        <option value="completed" {% if plan.status == 'completed' %}selected{% endif %}>Completado</option>
+    </select>
+
+    <div style="margin-top: 1rem;">
+        <button type="submit">Guardar Cambios</button>
+        <a href="/treatment/plan/{{ plan.id }}" style="margin-left: 1rem;">Cancelar</a>
+    </div>
+</form>
+{% endblock %}
