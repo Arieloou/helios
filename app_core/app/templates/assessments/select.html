@@ -1,0 +1,57 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Seleccionar Evaluación Activa - Helios{% endblock %}
+
+{% block content %}
+<h1>Seleccionar Evaluación Activa</h1>
+
+<p>Seleccione una evaluación activa para que todo el sistema filtre automáticamente la información perteneciente a ella.</p>
+
+{% if current_active %}
+<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Evaluación actualmente activa:</strong> {{ current_active.name }}
+    <span style="background: #4caf50; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; margin-left: 0.5rem;">{{ current_active.period }}</span>
+</div>
+{% endif %}
+
+{% if assessments %}
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Período</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for assessment in assessments %}
+        <tr>
+            <td>
+                {% if current_active and current_active.id == assessment.id %}
+                <strong style="color: #4caf50;">★ {{ assessment.name }}</strong>
+                {% else %}
+                {{ assessment.name }}
+                {% endif %}
+            </td>
+            <td>{{ assessment.description or '-' }}</td>
+            <td>{{ assessment.period }}</td>
+            <td>
+                {% if current_active and current_active.id == assessment.id %}
+                <span style="color: #4caf50;">Activa</span>
+                {% else %}
+                <a href="/assessments/{{ assessment.id }}/set-active">Activar</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay evaluaciones activas disponibles. <a href="/assessments/create">Crear una evaluación</a></p>
+{% endif %}
+
+<div style="margin-top: 1rem;">
+    <a href="/assessments/">Volver a Evaluaciones</a>
+</div>
+{% endblock %}

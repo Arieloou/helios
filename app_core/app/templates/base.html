@@ -22,8 +22,9 @@
 <body>
     <nav>
         <a href="/">Inicio</a>
-        <a href="/auth/dashboard">Dashboard</a>
+        <a href="/assessments/">Evaluaciones</a>
         <a href="/assets/">Activos</a>
+        <a href="/auth/dashboard">Dashboard</a>
         {% if session.get("user") %}
             <a href="/auth/logout">Cerrar sesión</a>
         {% else %}

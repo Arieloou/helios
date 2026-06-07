@@ -1,0 +1,23 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Crear Evaluación - Helios{% endblock %}
+
+{% block content %}
+<h1>Nueva Evaluación</h1>
+
+<p>Una evaluación es un contenedor contextual que aísla todo el análisis de riesgos. Todos los activos, mapeos y dashboards se asociarán a la evaluación activa.</p>
+
+<form method="POST">
+    <label for="name">Nombre de la Evaluación *</label>
+    <input type="text" id="name" name="name" required placeholder="ej. Auditoría Financiera Q1 2026">
+
+    <label for="description">Descripción</label>
+    <textarea id="description" name="description" rows="3" placeholder="Descripción opcional de la evaluación"></textarea>
+
+    <label for="period">Período *</label>
+    <input type="text" id="period" name="period" required placeholder="ej. Q1 2026">
+
+    <button type="submit">Crear Evaluación</button>
+    <a href="/assessments/" style="margin-left: 1rem;">Cancelar</a>
+</form>
+{% endblock %}

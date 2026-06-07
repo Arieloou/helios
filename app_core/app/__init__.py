@@ -34,9 +34,11 @@ def _init_extensions(app: Flask):
 def _register_blueprints(app: Flask):
     from .controllers.authcontroller import auth_bp
     from .controllers.assetcontroller import asset_bp
+    from .controllers.assessment_controller import assessment_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(asset_bp)
+    app.register_blueprint(assessment_bp)
 
 
 def _register_error_handlers(app: Flask):
