@@ -36,11 +36,15 @@ def _register_blueprints(app: Flask):
     from .controllers.assetcontroller import asset_bp
     from .controllers.assessment_controller import assessment_bp
     from .controllers.risk_controller import risk_bp
+    from .controllers.iso_controller import iso_bp
+    from .controllers.ai_controller import ai_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(asset_bp)
     app.register_blueprint(assessment_bp)
     app.register_blueprint(risk_bp)
+    app.register_blueprint(iso_bp)
+    app.register_blueprint(ai_bp)
 
 
 def _register_error_handlers(app: Flask):

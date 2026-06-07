@@ -1,0 +1,71 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Reporte de Madurez - Helios{% endblock %}
+
+{% block content %}
+<h1>Reporte de Madurez ISO 27002</h1>
+
+<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Evaluación activa:</strong> {{ active_assessment.name }}
+</div>
+
+<p><strong>Madurez General:</strong> 
+    <span style="background: {% if report.overall_maturity >= 0.8 %}#4caf50{% elif report.overall_maturity >= 0.5 %}#ff9800{% else %}#f44336{% endif %}; color: white; padding: 0.5rem 1rem; border-radius: 4px; font-size: 1.5rem;">
+        {{ report.overall_maturity_display }}%
+    </span>
+</p>
+
+<h2>Madurez por Dominio</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Dominio</th>
+            <th>Controles</th>
+            <th>Madurez</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for domain, data in domain_maturity.items() %}
+        <tr>
+            <td>{{ domain }}</td>
+            <td>{{ data.controls_count }}</td>
+            <td>
+                <span style="background: {% if data.maturity >= 0.8 %}#4caf50{% elif data.maturity >= 0.5 %}#ff9800{% else %}#f44336{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">
+                    {{ data.maturity_display }}%
+                </span>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Madurez por Control</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Control</th>
+            <th>Título</th>
+            <th>Dominio</th>
+            <th>Madurez</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ctrl in report.controls %}
+        <tr>
+            <td>{{ ctrl.control_id }}</td>
+            <td>{{ ctrl.title }}</td>
+            <td>{{ ctrl.domain }}</td>
+            <td>
+                <span style="background: {% if ctrl.maturity >= 0.8 %}#4caf50{% elif ctrl.maturity >= 0.5 %}#ff9800{% else %}#f44336{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">
+                    {{ ctrl.maturity_display }}%
+                </span>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div style="margin-top: 1rem;">
+    <a href="/iso/"><button>Volver al Cuestionario</button></a>
+</div>
+{% endblock %}

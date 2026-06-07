@@ -1,0 +1,43 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Cuestionario ISO 27002 - Helios{% endblock %}
+
+{% block content %}
+<h1>Cuestionario de Madurez ISO 27002</h1>
+
+{% if not active_assessment %}
+<div style="background: #fff3e0; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    No hay evaluación activa. <a href="/assessments/select">Seleccionar una evaluación</a> primero.
+</div>
+{% else %}
+<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Evaluación activa:</strong> {{ active_assessment.name }}
+</div>
+{% endif %}
+
+<div style="margin-bottom: 1rem;">
+    <a href="/iso/maturity"><button>Ver Reporte de Madurez</button></a>
+</div>
+
+<p>Seleccione un control para responder el cuestionario y calcular su madurez.</p>
+
+{% if questionnaire %}
+{% for control in questionnaire %}
+<div style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
+    <h3>{{ control.control_id }}: {{ control.title }}</h3>
+    <p style="color: #666;">{{ control.description }}</p>
+    <p><strong>Dominio:</strong> {{ control.domain }}</p>
+    <p>
+        <strong>Madurez:</strong> 
+        <span style="background: {% if control.maturity >= 0.8 %}#4caf50{% elif control.maturity >= 0.5 %}#ff9800{% else %}#f44336{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">
+            {{ control.maturity_display }}%
+        </span>
+        ({{ control.answered_questions }}/{{ control.total_questions }} preguntas respondidas)
+    </p>
+    <a href="/iso/control/{{ control.control_id }}"><button>Responder</button></a>
+</div>
+{% endfor %}
+{% else %}
+<p>No hay controles disponibles. Cree una evaluación y mapee activos primero.</p>
+{% endif %}
+{% endblock %}

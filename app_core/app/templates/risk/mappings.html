@@ -18,7 +18,7 @@
 <div style="margin-bottom: 1rem;">
     <a href="/risk/create"><button>+ Nuevo Mapeo</button></a>
     <a href="/risk/matrix"><button>Ver Matriz de Riesgos</button></a>
-    <a href="/risk/recalculate"><button>Recalcular</button></a>
+    <a href="/risk/recalculate"><button>Recalcular RR</button></a>
 </div>
 
 {% if summary.total_mappings > 0 %}
@@ -26,7 +26,10 @@
     <strong>Resumen:</strong> 
     Mapeos: {{ summary.total_mappings }} | 
     RI Promedio: {{ summary.avg_risk_inherent }} | 
-    RI Máximo: {{ summary.max_risk_inherent }}
+    RI Máximo: {{ summary.max_risk_inherent }} |
+    Madurez Promedio: {{ summary.avg_maturity_display }}% |
+    RR Promedio: {{ summary.avg_residual_risk }} |
+    RR Máximo: {{ summary.max_residual_risk }}
 </div>
 {% endif %}
 
@@ -38,10 +41,12 @@
             <th>V_total</th>
             <th>Amenaza</th>
             <th>Vulnerabilidad</th>
-            <th title="Probabilidad">P (1-5)</th>
-            <th title="Degradación">D (0-1)</th>
+            <th title="Probabilidad">P</th>
+            <th title="Degradación">D</th>
             <th>Impacto</th>
             <th title="Riesgo Inherente">RI</th>
+            <th title="Madurez">M</th>
+            <th title="Riesgo Residual">RR</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -50,8 +55,8 @@
         <tr>
             <td>{{ mapping.asset_name }}</td>
             <td style="text-align: center;">{{ mapping.asset_v_total }}</td>
-            <td>{{ mapping.threat_id[:20] }}...</td>
-            <td>{{ mapping.vulnerability_id[:20] }}...</td>
+            <td>{{ mapping.threat_id[:15] }}...</td>
+            <td>{{ mapping.vulnerability_id[:15] }}...</td>
             <td style="text-align: center;">{{ mapping.probability }}</td>
             <td style="text-align: center;">{{ mapping.degradation }}</td>
             <td style="text-align: center;">{{ mapping.impact or '-' }}</td>
@@ -62,9 +67,21 @@
                 </span>
                 {% else %}-{% endif %}
             </td>
+            <td style="text-align: center;">
+                <span style="background: {% if mapping.maturity >= 0.8 %}#4caf50{% elif mapping.maturity >= 0.5 %}#ff9800{% else %}#f44336{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">
+                    {{ mapping.maturity_display }}%
+                </span>
+            </td>
+            <td style="text-align: center;">
+                {% if mapping.residual_risk %}
+                <span style="background: {% if mapping.residual_risk >= 15 %}#f44336{% elif mapping.residual_risk >= 8 %}#ff9800{% elif mapping.residual_risk >= 4 %}#ffc107{% else %}#4caf50{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: bold;">
+                    {{ mapping.residual_risk }}
+                </span>
+                {% else %}-{% endif %}
+            </td>
             <td>
                 <a href="/risk/{{ mapping.id }}/edit">Editar</a>
-                <a href="/risk/{{ mapping.id }}/delete" onclick="return confirm('¿Eliminar este mapeo?')">Eliminar</a>
+                <a href="/risk/{{ mapping.id }}/delete" onclick="return confirm(¿Eliminar este mapeo?)">Eliminar</a>
             </td>
         </tr>
         {% endfor %}

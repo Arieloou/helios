@@ -26,11 +26,15 @@ def create_app() -> Flask:
     from app.controllers.assetcontroller import asset_bp
     from app.controllers.assessment_controller import assessment_bp
     from app.controllers.risk_controller import risk_bp
+    from app.controllers.iso_controller import iso_bp
+    from app.controllers.ai_controller import ai_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(asset_bp)
     app.register_blueprint(assessment_bp)
     app.register_blueprint(risk_bp)
+    app.register_blueprint(iso_bp)
+    app.register_blueprint(ai_bp)
 
     @app.errorhandler(ConnectionError)
     def handle_encryption_unavailable(error):

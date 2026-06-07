@@ -143,10 +143,16 @@ def matrix():
 
 @risk_bp.route("/recalculate")
 def recalculate():
+    from app.services.risk_recalculation_service import RiskRecalculationService
+
     active_assessment = AssessmentService.get_active()
     try:
-        count = MageritService.recalculate_all(active_assessment["id"] if active_assessment else None)
-        flash(f"Se recalcularon {count} mapeos.", "success")
+        if active_assessment:
+            result = RiskRecalculationService.recalculate_for_assessment(active_assessment["id"])
+            flash(f"Se recalcularon {result['mappings_updated']} mapeos con riesgos residuales.", "success")
+        else:
+            count = MageritService.recalculate_all(None)
+            flash(f"Se recalcularon {count} mapeos (RI).", "success")
     except Exception as e:
         flash(f"Error al recalcular: {e}", "error")
     return redirect(url_for("risk.index"))

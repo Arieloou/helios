@@ -91,6 +91,8 @@ class AssetThreatMapping:
         degradation: float = 0.5,
         impact: Optional[float] = None,
         risk_inherent: Optional[float] = None,
+        maturity: float = 0.0,
+        residual_risk: Optional[float] = None,
         created_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None,
     ):
@@ -103,6 +105,8 @@ class AssetThreatMapping:
         self.degradation = max(0.0, min(1.0, degradation))
         self.impact = impact
         self.risk_inherent = risk_inherent
+        self.maturity = max(0.0, min(1.0, maturity))
+        self.residual_risk = residual_risk
         self.created_at = created_at or datetime.now()
         self.updated_at = updated_at
         self._instances[self.id] = self
@@ -110,7 +114,17 @@ class AssetThreatMapping:
     def calculate_risk(self, v_total: int) -> None:
         self.impact = v_total * self.degradation
         self.risk_inherent = self.impact * self.probability
+        self.calculate_residual_risk()
         self.updated_at = datetime.now()
+
+    def calculate_residual_risk(self) -> None:
+        if self.risk_inherent is not None:
+            self.residual_risk = self.risk_inherent * (1 - self.maturity)
+            self.updated_at = datetime.now()
+
+    def set_maturity(self, maturity: float) -> None:
+        self.maturity = max(0.0, min(1.0, maturity))
+        self.calculate_residual_risk()
 
     def to_dict(self) -> Dict:
         return {
@@ -123,6 +137,9 @@ class AssetThreatMapping:
             "degradation": self.degradation,
             "impact": round(self.impact, 2) if self.impact else None,
             "risk_inherent": round(self.risk_inherent, 2) if self.risk_inherent else None,
+            "maturity": round(self.maturity, 2),
+            "maturity_display": round(self.maturity * 100, 1),
+            "residual_risk": round(self.residual_risk, 2) if self.residual_risk else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
