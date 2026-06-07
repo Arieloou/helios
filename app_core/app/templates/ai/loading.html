@@ -1,0 +1,19 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Analizando - Helios{% endblock %}
+
+{% block content %}
+<h1>Analizando activo con IA...</h1>
+
+<div style="text-align: center; padding: 2rem;">
+    <div style="font-size: 2rem; margin-bottom: 1rem;">⏳</div>
+    <p>El modelo de IA local está analizando el activo. Esto puede tomar unos segundos...</p>
+    <p style="color: #666; font-size: 0.9rem;">Asegúrese de que Ollama esté ejecutándose</p>
+</div>
+
+<script>
+    setTimeout(function() {
+        location.reload();
+    }, 5000);
+</script>
+{% endblock %}

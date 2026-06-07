@@ -1,0 +1,74 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Análisis IA - Helios{% endblock %}
+
+{% block content %}
+<h1>Análisis de Coherencia con IA</h1>
+
+<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Activo:</strong> {{ asset.name }}
+</div>
+
+<div style="background: #f5f5f5; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <h3>Datos del Activo</h3>
+    <p><strong>Tipo:</strong> {{ asset.asset_type }}</p>
+    <p><strong>Descripción:</strong> {{ asset.description or '-' }}</p>
+    <p><strong>Valor CID:</strong> C={{ asset.confidentiality }}, I={{ asset.integrity }}, D={{ asset.availability }}</p>
+    <p><strong>V_total:</strong> {{ asset.v_total }}</p>
+    {% if asset.risk_inherent %}
+    <p><strong>Riesgo Inherente:</strong> {{ asset.risk_inherent }}</p>
+    <p><strong>Riesgo Residual:</strong> {{ asset.residual_risk or '-' }}</p>
+    {% endif %}
+</div>
+
+{% if not analysis.success %}
+<div style="background: #ffebee; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <h3 style="color: #c62828;">Error en el análisis</h3>
+    <p>{{ analysis.error }}</p>
+    {% if analysis.available == false %}
+    <p><strong>Solución:</strong> Asegúrese de que Ollama esté ejecutándose localmente (localhost:11434)</p>
+    <pre>ollama serve</pre>
+    {% endif %}
+</div>
+{% else %}
+<div style="background: #e3f2fd; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <h3>Observaciones de Coherencia</h3>
+    {% if analysis.observations %}
+    <ul>
+    {% for obs in analysis.observations %}
+        <li>{{ obs }}</li>
+    {% endfor %}
+    </ul>
+    {% else %}
+    <p>No se pudieron extraer observaciones.</p>
+    {% endif %}
+</div>
+
+<div style="background: #fff3e0; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <h3>Controles ISO 27002 Recomendados</h3>
+    {% if analysis.recommendations %}
+    <ul>
+    {% for rec in analysis.recommendations %}
+        <li>{{ rec }}</li>
+    {% endfor %}
+    </ul>
+    {% else %}
+    <p>No se pudieron extraer recomendaciones.</p>
+    {% endif %}
+</div>
+
+{% if analysis.raw_response %}
+<details style="margin-top: 1rem;">
+    <summary>Ver respuesta completa de IA</summary>
+    <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto;">{{ analysis.raw_response }}</pre>
+</details>
+{% endif %}
+{% endif %}
+
+<div style="margin-top: 1rem;">
+    <form method="POST">
+        <button type="submit">Analizar con IA</button>
+    </form>
+    <a href="/assets/"><button style="margin-left: 1rem;">Volver a Activos</button></a>
+</div>
+{% endblock %}

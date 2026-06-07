@@ -1,0 +1,46 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Control {{ control.control_id }} - Helios{% endblock %}
+
+{% block content %}
+<h1>{{ control.control_id }}: {{ control.title }}</h1>
+
+<p>{{ control.description }}</p>
+
+<p><strong>Madurez actual:</strong> 
+    <span style="background: {% if maturity.maturity_percentage >= 0.8 %}#4caf50{% elif maturity.maturity_percentage >= 0.5 %}#ff9800{% else %}#f44336{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">
+        {{ maturity.maturity_percentage_display }}%
+    </span>
+</p>
+
+<form method="POST">
+    {% for question in questions %}
+    <fieldset style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem;">
+        <legend style="font-weight: bold;">{{ question.question_text }}</legend>
+        <label>
+            <input type="radio" name="q_{{ question.id }}" value="0" {% if response_map.get(question.id) and response_map[question.id].response == 0 %}checked{% endif %}>
+            No implementado (0%)
+        </label><br>
+        <label>
+            <input type="radio" name="q_{{ question.id }}" value="25" {% if response_map.get(question.id) and response_map[question.id].response == 25 %}checked{% endif %}>
+            En desarrollo (25%)
+        </label><br>
+        <label>
+            <input type="radio" name="q_{{ question.id }}" value="50" {% if response_map.get(question.id) and response_map[question.id].response == 50 %}checked{% endif %}>
+            Parcialmente implementado (50%)
+        </label><br>
+        <label>
+            <input type="radio" name="q_{{ question.id }}" value="75" {% if response_map.get(question.id) and response_map[question.id].response == 75 %}checked{% endif %}>
+            Mayormente implementado (75%)
+        </label><br>
+        <label>
+            <input type="radio" name="q_{{ question.id }}" value="100" {% if response_map.get(question.id) and response_map[question.id].response == 100 %}checked{% endif %}>
+            Completamente implementado (100%)
+        </label>
+    </fieldset>
+    {% endfor %}
+
+    <button type="submit">Guardar Respuestas</button>
+    <a href="/iso/" style="margin-left: 1rem;">Volver</a>
+</form>
+{% endblock %}

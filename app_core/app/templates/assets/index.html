@@ -52,8 +52,9 @@
             <td style="text-align: center; font-weight: bold;">
                 <span style="background: #2196f3; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">{{ asset.v_total }}</span>
             </td>
-            <td>
+<td>
                 <a href="/assets/{{ asset.id }}/edit">Editar</a>
+                <a href="/ai/analyze/{{ asset.id }}">Analizar IA</a>
                 <a href="/assets/{{ asset.id }}/delete" onclick="return confirm('¿Eliminar este activo?')">Eliminar</a>
             </td>
         </tr>

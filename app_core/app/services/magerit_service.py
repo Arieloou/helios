@@ -135,24 +135,5 @@ class MageritService:
 
     @classmethod
     def get_risk_summary(cls, assessment_id: Optional[str] = None) -> Dict:
-        if assessment_id:
-            mappings = AssetThreatMapping.get_by_assessment(assessment_id)
-        else:
-            mappings = AssetThreatMapping.get_all()
-        
-        if not mappings:
-            return {
-                "total_mappings": 0,
-                "avg_risk_inherent": 0,
-                "max_risk_inherent": 0,
-                "min_risk_inherent": 0,
-            }
-        
-        ri_values = [m.risk_inherent for m in mappings if m.risk_inherent is not None]
-        
-        return {
-            "total_mappings": len(mappings),
-            "avg_risk_inherent": round(sum(ri_values) / len(ri_values), 2) if ri_values else 0,
-            "max_risk_inherent": max(ri_values) if ri_values else 0,
-            "min_risk_inherent": min(ri_values) if ri_values else 0,
-        }
+        from app.services.risk_calculation_service import RiskCalculationService
+        return RiskCalculationService.get_risk_summary(assessment_id)
