@@ -1,26 +1,57 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
+
 {% block title %}Nuevo Activo - Helios{% endblock %}
+
 {% block content %}
-<h1>Registrar nuevo activo</h1>
+<h1>Nuevo Activo</h1>
+
+{% if not active_assessment %}
+<div style="background: #fff3e0; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    No hay evaluación activa. <a href="/assessments/select">Seleccionar una evaluación</a> primero.
+</div>
+{% endif %}
+
+<p>Los activos se asocian a la evaluación activa. La valoración CID (Confidencialidad, Integridad, Disponibilidad) determina el valor total del activo.</p>
+
 <form method="POST">
-    <label for="name">Nombre del activo:</label>
-    <input type="text" id="name" name="name" required>
+    <label for="name">Nombre del Activo *</label>
+    <input type="text" id="name" name="name" required placeholder="ej. Base de datos de clientes">
 
-    <label for="description">Descripción:</label>
-    <textarea id="description" name="description" rows="3" required></textarea>
-
-    <label for="type">Tipo de activo:</label>
-    <select id="type" name="type">
+    <label for="asset_type">Tipo de Activo *</label>
+    <select id="asset_type" name="asset_type" required>
+        <option value="">Seleccionar tipo...</option>
         <option value="hardware">Hardware</option>
         <option value="software">Software</option>
-        <option value="data">Datos</option>
-        <option value="personnel">Personal</option>
-        <option value="service">Servicio</option>
+        <option value="datos">Datos</option>
+        <option value="personas">Personas</option>
+        <option value="procesos">Procesos</option>
+        <option value="otro">Otro</option>
     </select>
 
-    <button type="submit">Registrar activo</button>
+    <label for="description">Descripción</label>
+    <textarea id="description" name="description" rows="3" placeholder="Descripción opcional"></textarea>
+
+    <fieldset style="border: 1px solid #ddd; padding: 1rem; margin-top: 1rem;">
+        <legend style="font-weight: bold;">Valoración CID (1-5)</legend>
+        <p style="font-size: 0.9rem; color: #666;">El valor total (V_total) = máx(C, I, D)</p>
+        
+        <label for="confidentiality">Confidencialidad (C) *</label>
+        <input type="range" id="confidentiality" name="confidentiality" min="1" max="5" value="1" oninput="this.nextElementSibling.value = this.value">
+        <output>1</output>
+        <span style="font-size: 0.8rem; color: #666;">(1=Mínima, 5=Máxima)</span>
+
+        <label for="integrity">Integridad (I) *</label>
+        <input type="range" id="integrity" name="integrity" min="1" max="5" value="1" oninput="this.nextElementSibling.value = this.value">
+        <output>1</output>
+        <span style="font-size: 0.8rem; color: #666;">(1=Mínima, 5=Máxima)</span>
+
+        <label for="availability">Disponibilidad (D) *</label>
+        <input type="range" id="availability" name="availability" min="1" max="5" value="1" oninput="this.nextElementSibling.value = this.value">
+        <output>1</output>
+        <span style="font-size: 0.8rem; color: #666;">(1=Mínima, 5=Máxima)</span>
+    </fieldset>
+
+    <button type="submit">Crear Activo</button>
+    <a href="/assets/" style="margin-left: 1rem;">Cancelar</a>
 </form>
-<p style="margin-top:1rem; color:#666;">
-    El nombre y descripción se cifrarán con AES-256-GCM via gRPC antes de almacenarse.
-</p>
 {% endblock %}

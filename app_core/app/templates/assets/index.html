@@ -1,35 +1,66 @@
-{% extends "base.html" %}
-{% block title %}Activos - Helios{% endblock %}
-{% block content %}
-<h1>Activos de información</h1>
-<a href="/assets/create">+ Nuevo activo</a>
+﻿{% extends "base.html" %}
 
-<p style="color:#666; margin-top:0.5rem;">
-    Los nombres y descripciones se almacenan cifrados y se descifran al mostrar vía gRPC.
-</p>
+{% block title %}Activos - Helios{% endblock %}
+
+{% block content %}
+<h1>Inventario de Activos</h1>
+
+{% if not active_assessment %}
+<div style="background: #fff3e0; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    No hay evaluación activa. <a href="/assessments/select">Seleccionar una evaluación</a> para registrar activos.
+</div>
+{% else %}
+<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Evaluación activa:</strong> {{ active_assessment.name }}
+</div>
+{% endif %}
+
+<div style="margin-bottom: 1rem;">
+    <a href="/assets/create"><button>+ Nuevo activo</button></a>
+    <a href="/assets/import"><button>Importar CSV</button></a>
+</div>
 
 {% if assets %}
 <table>
     <thead>
         <tr>
-            <th>ID</th>
             <th>Nombre</th>
-            <th>Descripción</th>
             <th>Tipo</th>
+            <th>Descripción</th>
+            <th title="Confidencialidad">C</th>
+            <th title="Integridad">I</th>
+            <th title="Disponibilidad">D</th>
+            <th title="Valor total = máx(C,I,D)">V_total</th>
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
         {% for asset in assets %}
         <tr>
-            <td>{{ asset.id }}</td>
             <td>{{ asset.name }}</td>
-            <td>{{ asset.description }}</td>
-            <td>{{ asset.type }}</td>
+            <td>{{ asset.asset_type }}</td>
+            <td>{{ asset.description or '-' }}</td>
+            <td style="text-align: center;">
+                <span style="background: {% if asset.confidentiality >= 4 %}#f44336{% elif asset.confidentiality >= 3 %}#ff9800{% else %}#4caf50{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">{{ asset.confidentiality }}</span>
+            </td>
+            <td style="text-align: center;">
+                <span style="background: {% if asset.integrity >= 4 %}#f44336{% elif asset.integrity >= 3 %}#ff9800{% else %}#4caf50{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">{{ asset.integrity }}</span>
+            </td>
+            <td style="text-align: center;">
+                <span style="background: {% if asset.availability >= 4 %}#f44336{% elif asset.availability >= 3 %}#ff9800{% else %}#4caf50{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">{{ asset.availability }}</span>
+            </td>
+            <td style="text-align: center; font-weight: bold;">
+                <span style="background: #2196f3; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">{{ asset.v_total }}</span>
+            </td>
+            <td>
+                <a href="/assets/{{ asset.id }}/edit">Editar</a>
+                <a href="/assets/{{ asset.id }}/delete" onclick="return confirm('¿Eliminar este activo?')">Eliminar</a>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 {% else %}
-<p>No hay activos registrados todavía.</p>
+<p>No hay activos registrados. <a href="/assets/create">Crear el primer activo</a></p>
 {% endif %}
 {% endblock %}

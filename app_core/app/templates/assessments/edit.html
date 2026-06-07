@@ -1,0 +1,21 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Editar Evaluación - Helios{% endblock %}
+
+{% block content %}
+<h1>Editar Evaluación</h1>
+
+<form method="POST">
+    <label for="name">Nombre de la Evaluación *</label>
+    <input type="text" id="name" name="name" required value="{{ assessment.name }}">
+
+    <label for="description">Descripción</label>
+    <textarea id="description" name="description" rows="3">{{ assessment.description or '' }}</textarea>
+
+    <label for="period">Período *</label>
+    <input type="text" id="period" name="period" required value="{{ assessment.period }}">
+
+    <button type="submit">Guardar Cambios</button>
+    <a href="/assessments/" style="margin-left: 1rem;">Cancelar</a>
+</form>
+{% endblock %}
