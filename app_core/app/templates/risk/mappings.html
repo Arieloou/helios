@@ -1,0 +1,76 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Mapeo de Riesgos - Helios{% endblock %}
+
+{% block content %}
+<h1>Mapeo de Activos - Amenazas - Vulnerabilidades</h1>
+
+{% if not active_assessment %}
+<div style="background: #fff3e0; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    No hay evaluación activa. <a href="/assessments/select">Seleccionar una evaluación</a> primero.
+</div>
+{% else %}
+<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Evaluación activa:</strong> {{ active_assessment.name }}
+</div>
+{% endif %}
+
+<div style="margin-bottom: 1rem;">
+    <a href="/risk/create"><button>+ Nuevo Mapeo</button></a>
+    <a href="/risk/matrix"><button>Ver Matriz de Riesgos</button></a>
+    <a href="/risk/recalculate"><button>Recalcular</button></a>
+</div>
+
+{% if summary.total_mappings > 0 %}
+<div style="background: #e3f2fd; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Resumen:</strong> 
+    Mapeos: {{ summary.total_mappings }} | 
+    RI Promedio: {{ summary.avg_risk_inherent }} | 
+    RI Máximo: {{ summary.max_risk_inherent }}
+</div>
+{% endif %}
+
+{% if mappings %}
+<table>
+    <thead>
+        <tr>
+            <th>Activo</th>
+            <th>V_total</th>
+            <th>Amenaza</th>
+            <th>Vulnerabilidad</th>
+            <th title="Probabilidad">P (1-5)</th>
+            <th title="Degradación">D (0-1)</th>
+            <th>Impacto</th>
+            <th title="Riesgo Inherente">RI</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for mapping in mappings %}
+        <tr>
+            <td>{{ mapping.asset_name }}</td>
+            <td style="text-align: center;">{{ mapping.asset_v_total }}</td>
+            <td>{{ mapping.threat_id[:20] }}...</td>
+            <td>{{ mapping.vulnerability_id[:20] }}...</td>
+            <td style="text-align: center;">{{ mapping.probability }}</td>
+            <td style="text-align: center;">{{ mapping.degradation }}</td>
+            <td style="text-align: center;">{{ mapping.impact or '-' }}</td>
+            <td style="text-align: center;">
+                {% if mapping.risk_inherent %}
+                <span style="background: {% if mapping.risk_inherent >= 15 %}#f44336{% elif mapping.risk_inherent >= 8 %}#ff9800{% elif mapping.risk_inherent >= 4 %}#ffc107{% else %}#4caf50{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">
+                    {{ mapping.risk_inherent }}
+                </span>
+                {% else %}-{% endif %}
+            </td>
+            <td>
+                <a href="/risk/{{ mapping.id }}/edit">Editar</a>
+                <a href="/risk/{{ mapping.id }}/delete" onclick="return confirm('¿Eliminar este mapeo?')">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay mapeos de riesgos. <a href="/risk/create">Crear el primer mapeo</a></p>
+{% endif %}
+{% endblock %}

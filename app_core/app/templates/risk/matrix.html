@@ -1,0 +1,125 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Matriz de Riesgos 5x5 - Helios{% endblock %}
+
+{% block content %}
+<h1>Matriz de Riesgos 5x5</h1>
+
+{% if active_assessment %}
+<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Evaluación activa:</strong> {{ active_assessment.name }}
+</div>
+{% endif %}
+
+<p>La matriz muestra el Riesgo Inherente (RI) basado en Impacto vs Probabilidad.</p>
+
+<div style="margin-bottom: 1rem;">
+    <a href="/risk/"><button>Volver a Mapeos</button></a>
+</div>
+
+<style>
+.matrix-cell { width: 80px; height: 80px; text-align: center; vertical-align: middle; border: 1px solid #ddd; }
+.matrix-header { background: #f5f5f5; font-weight: bold; }
+.critical { background: #f44336; color: white; }
+.high { background: #ff9800; color: white; }
+medium { background: #ffc107; }
+.low { background: #4caf50; color: white; }
+</style>
+
+<table style="border-collapse: collapse; margin: 1rem auto;">
+    <tr>
+        <td></td>
+        <td class="matrix-header matrix-cell">P=1</td>
+        <td class="matrix-header matrix-cell">P=2</td>
+        <td class="matrix-header matrix-cell">P=3</td>
+        <td class="matrix-header matrix-cell">P=4</td>
+        <td class="matrix-header matrix-cell">P=5</td>
+    </tr>
+    <tr>
+        <td class="matrix-header matrix-cell">I=5</td>
+        <td class="matrix-cell medium">5</td>
+        <td class="matrix-cell high">10</td>
+        <td class="matrix-cell high">15</td>
+        <td class="matrix-cell critical">20</td>
+        <td class="matrix-cell critical">25</td>
+    </tr>
+    <tr>
+        <td class="matrix-header matrix-cell">I=4</td>
+        <td class="matrix-cell low">4</td>
+        <td class="matrix-cell medium">8</td>
+        <td class="matrix-cell high">12</td>
+        <td class="matrix-cell high">16</td>
+        <td class="matrix-cell critical">20</td>
+    </tr>
+    <tr>
+        <td class="matrix-header matrix-cell">I=3</td>
+        <td class="matrix-cell low">3</td>
+        <td class="matrix-cell medium">6</td>
+        <td class="matrix-cell medium">9</td>
+        <td class="matrix-cell high">12</td>
+        <td class="matrix-cell high">15</td>
+    </tr>
+    <tr>
+        <td class="matrix-header matrix-cell">I=2</td>
+        <td class="matrix-cell low">2</td>
+        <td class="matrix-cell low">4</td>
+        <td class="matrix-cell medium">6</td>
+        <td class="matrix-cell medium">8</td>
+        <td class="matrix-cell high">10</td>
+    </tr>
+    <tr>
+        <td class="matrix-header matrix-cell">I=1</td>
+        <td class="matrix-cell low">1</td>
+        <td class="matrix-cell low">2</td>
+        <td class="matrix-cell low">3</td>
+        <td class="matrix-cell low">4</td>
+        <td class="matrix-cell medium">5</td>
+    </tr>
+</table>
+
+<div style="text-align: center; margin: 1rem;">
+    <span style="background: #f44336; color: white; padding: 0.3rem 0.8rem; margin: 0 0.5rem;">Crítico (17-25)</span>
+    <span style="background: #ff9800; color: white; padding: 0.3rem 0.8rem; margin: 0 0.5rem;">Alto (10-16)</span>
+    <span style="background: #ffc107; padding: 0.3rem 0.8rem; margin: 0 0.5rem;">Medio (5-9)</span>
+    <span style="background: #4caf50; color: white; padding: 0.3rem 0.8rem; margin: 0 0.5rem;">Bajo (1-4)</span>
+</div>
+
+{% if mappings %}
+<h2 style="margin-top: 2rem;">Mapeos Registrados</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Activo</th>
+            <th>Impacto</th>
+            <th>Probabilidad</th>
+            <th>RI</th>
+            <th>Nivel</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for mapping in mappings %}
+        {% set ri = mapping.risk_inherent or 0 %}
+        <tr>
+            <td>{{ mapping.asset_name }}</td>
+            <td>{{ mapping.impact or '-' }}</td>
+            <td>{{ mapping.probability }}</td>
+            <td>{{ ri }}</td>
+            <td>
+                {% if ri >= 17 %}
+                <span style="background: #f44336; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">Crítico</span>
+                {% elif ri >= 10 %}
+                <span style="background: #ff9800; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">Alto</span>
+                {% elif ri >= 5 %}
+                <span style="background: #ffc107; padding: 0.2rem 0.5rem; border-radius: 4px;">Medio</span>
+                {% else %}
+                <span style="background: #4caf50; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">Bajo</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay mapeos de riesgos para mostrar en la matriz.</p>
+{% endif %}
+{% endblock %}

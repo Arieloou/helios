@@ -1,0 +1,31 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Editar Mapeo - Helios{% endblock %}
+
+{% block content %}
+<h1>Editar Mapeo de Riesgo</h1>
+
+<form method="POST">
+    <fieldset style="border: 1px solid #ddd; padding: 1rem; margin-top: 1rem;">
+        <legend style="font-weight: bold;">Variables de Riesgo</legend>
+        
+        <p><strong>Activo:</strong> {{ mapping.asset_name }} (V_total: {{ mapping.asset_v_total }})</p>
+        
+        <label for="probability">Probabilidad (P) * - Escala 1-5</label>
+        <input type="range" id="probability" name="probability" min="1" max="5" value="{{ mapping.probability }}" oninput="this.nextElementSibling.value = this.value">
+        <output>{{ mapping.probability }}</output>
+        <span style="font-size: 0.8rem; color: #666;">(1=Raro, 5=Muy probable)</span>
+
+        <label for="degradation">Degradación (D) * - Porcentaje 0-1</label>
+        <input type="range" id="degradation" name="degradation" min="0" max="1" step="0.1" value="{{ mapping.degradation }}" oninput="this.nextElementSibling.value = this.value">
+        <output>{{ mapping.degradation }}</output>
+        <span style="font-size: 0.8rem; color: #666;">(0=Sin impacto, 1=Total)</span>
+    </fieldset>
+
+    <p><strong>Impacto calculado:</strong> {{ mapping.impact or '-' }}</p>
+    <p><strong>Riesgo Inherente (RI):</strong> {{ mapping.risk_inherent or '-' }}</p>
+
+    <button type="submit">Guardar Cambios</button>
+    <a href="/risk/" style="margin-left: 1rem;">Cancelar</a>
+</form>
+{% endblock %}

@@ -1,0 +1,48 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Editar Activo - Helios{% endblock %}
+
+{% block content %}
+<h1>Editar Activo</h1>
+
+<form method="POST">
+    <label for="name">Nombre del Activo *</label>
+    <input type="text" id="name" name="name" required value="{{ asset.name }}">
+
+    <label for="asset_type">Tipo de Activo *</label>
+    <select id="asset_type" name="asset_type" required>
+        <option value="hardware" {% if asset.asset_type == 'hardware' %}selected{% endif %}>Hardware</option>
+        <option value="software" {% if asset.asset_type == 'software' %}selected{% endif %}>Software</option>
+        <option value="datos" {% if asset.asset_type == 'datos' %}selected{% endif %}>Datos</option>
+        <option value="personas" {% if asset.asset_type == 'personas' %}selected{% endif %}>Personas</option>
+        <option value="procesos" {% if asset.asset_type == 'procesos' %}selected{% endif %}>Procesos</option>
+        <option value="otro" {% if asset.asset_type == 'otro' %}selected{% endif %}>Otro</option>
+    </select>
+
+    <label for="description">Descripción</label>
+    <textarea id="description" name="description" rows="3">{{ asset.description or '' }}</textarea>
+
+    <fieldset style="border: 1px solid #ddd; padding: 1rem; margin-top: 1rem;">
+        <legend style="font-weight: bold;">Valoración CID (1-5)</legend>
+        <p style="font-size: 0.9rem; color: #666;">Valor total actual: <strong>{{ asset.v_total }}</strong> (máx C,I,D)</p>
+        
+        <label for="confidentiality">Confidencialidad (C) *</label>
+        <input type="range" id="confidentiality" name="confidentiality" min="1" max="5" value="{{ asset.confidentiality }}" oninput="this.nextElementSibling.value = this.value">
+        <output>{{ asset.confidentiality }}</output>
+        <span style="font-size: 0.8rem; color: #666;">(1=Mínima, 5=Máxima)</span>
+
+        <label for="integrity">Integridad (I) *</label>
+        <input type="range" id="integrity" name="integrity" min="1" max="5" value="{{ asset.integrity }}" oninput="this.nextElementSibling.value = this.value">
+        <output>{{ asset.integrity }}</output>
+        <span style="font-size: 0.8rem; color: #666;">(1=Mínima, 5=Máxima)</span>
+
+        <label for="availability">Disponibilidad (D) *</label>
+        <input type="range" id="availability" name="availability" min="1" max="5" value="{{ asset.availability }}" oninput="this.nextElementSibling.value = this.value">
+        <output>{{ asset.availability }}</output>
+        <span style="font-size: 0.8rem; color: #666;">(1=Mínima, 5=Máxima)</span>
+    </fieldset>
+
+    <button type="submit">Guardar Cambios</button>
+    <a href="/assets/" style="margin-left: 1rem;">Cancelar</a>
+</form>
+{% endblock %}
