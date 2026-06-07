@@ -1,6 +1,6 @@
 # Ollama Configuration
 
-This document outlines the setup, architecture, and integration of the local **Ollama** AI service within the Helios application. The system leverages Ollama as a local AI copilot (Agent 6) to analyze information assets, evaluate security coherence, and recommend security controls from the ISO 27002 catalog.
+This document outlines the setup, architecture, and integration of the local **Ollama** AI service within the Helios application. The system leverages Ollama as a local AI copilot to analyze information assets, evaluate security coherence, and recommend security controls from the ISO 27002 catalog.
 
 ---
 
