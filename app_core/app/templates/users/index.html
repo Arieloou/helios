@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Usuarios - Helios{% endblock %}
+
+{% block content %}
+<h1>Gestión de Usuarios</h1>
+
+<div style="margin-bottom: 1rem;">
+    <a href="/users/create"><button>+ Nuevo Usuario</button></a>
+    <a href="/auth/dashboard" style="margin-left: 1rem;">Volver al Dashboard</a>
+</div>
+
+{% if users %}
+<table>
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Intentos Fallidos</th>
+            <th>Creado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email or '-' }}</td>
+            <td>
+                {% if user.role == 'admin' %}
+                <span style="background: #9c27b0; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">Administrador</span>
+                {% else %}
+                <span style="background: #2196f3; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">Agente</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if user.is_active %}
+                <span style="background: #4caf50; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">Activo</span>
+                {% else %}
+                <span style="background: #f44336; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">Inactivo</span>
+                {% endif %}
+            </td>
+            <td style="text-align: center;">{{ user.failed_attempts }}</td>
+            <td>{{ user.created_at[:10] if user.created_at else '-' }}</td>
+            <td>
+                <a href="/users/{{ user.id }}/edit">Editar</a>
+                {% if user.is_active %}
+                <a href="/users/{{ user.id }}/deactivate" onclick="return confirm('¿Desactivar este usuario?')">Desactivar</a>
+                {% else %}
+                <a href="/users/{{ user.id }}/activate" onclick="return confirm('¿Activar este usuario?')">Activar</a>
+                {% endif %}
+                <a href="/users/{{ user.id }}/delete" onclick="return confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay usuarios creados. <a href="/users/create">Crear el primer usuario</a></p>
+{% endif %}
+{% endblock %}

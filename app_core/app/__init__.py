@@ -30,6 +30,13 @@ def _load_config(app: Flask):
 def _init_extensions(app: Flask):
     encryption_ext.init_app(app)
 
+    from .database import init_db, engine
+    try:
+        init_db(app)
+        app.logger.info("Database initialized successfully")
+    except Exception as e:
+        app.logger.warning(f"Database initialization skipped: {e}")
+
 
 def _register_blueprints(app: Flask):
     from .controllers.authcontroller import auth_bp
@@ -39,6 +46,8 @@ def _register_blueprints(app: Flask):
     from .controllers.iso_controller import iso_bp
     from .controllers.ai_controller import ai_bp
     from .controllers.treatment_controller import treatment_bp
+    from .controllers.dashboard_controller import dashboard_bp
+    from .controllers.user_controller import user_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(asset_bp)
@@ -47,6 +56,8 @@ def _register_blueprints(app: Flask):
     app.register_blueprint(iso_bp)
     app.register_blueprint(ai_bp)
     app.register_blueprint(treatment_bp)
+    app.register_blueprint(dashboard_bp)
+    app.register_blueprint(user_bp)
 
 
 def _register_error_handlers(app: Flask):

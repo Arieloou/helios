@@ -14,6 +14,13 @@ class Settings(BaseSettings):
     ENCRYPTION_SERVICE_HOST: str = "localhost"
     ENCRYPTION_SERVICE_PORT: int = 50051
 
+    DB_HOST: str = "localhost"
+    DB_PORT: str = "5432"
+    DB_NAME: str = "helios"
+    DB_USER: str = "postgres"
+    DB_PASSWORD: str = ""
+    SQL_ECHO: bool = False
+
     model_config = {
         "env_file": os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"),
         "env_file_encoding": "utf-8",

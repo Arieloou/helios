@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Viaje del Riesgo - Helios{% endblock %}
+
+{% block content %}
+<h1>Viaje del Riesgo (RI → RR)</h1>
+
+{% if not active_assessment %}
+<div style="background: #fff3e0; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    No hay evaluación activa. <a href="/assessments/select">Seleccionar una evaluación</a> primero.
+</div>
+{% else %}
+<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Evaluación activa:</strong> {{ active_assessment.name }}
+</div>
+{% endif %}
+
+<div style="margin-bottom: 1rem;">
+    <a href="/dashboard/overview"><button>Resumen Ejecutivo</button></a>
+    <a href="/dashboard/matrix"><button>Matriz 5x5</button></a>
+    <a href="/dashboard/export"><button>Exportar</button></a>
+</div>
+
+<p>Esta vista muestra cómo los riesgos se desplazan desde su posición inherente (RI) hasta su posición residual (RR) después de aplicar los controles de madurez.</p>
+
+{% if journeys %}
+<svg width="800" height="600" style="border: 1px solid #ccc; margin: 1rem auto; display: block;">
+    <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#2196f3" />
+        </marker>
+    </defs>
+    
+    <!-- Grid lines -->
+    {% for i in range(1, 6) %}
+    <line x1="{{ i * 150 }}" y1="50" x2="{{ i * 150 }}" y2="550" stroke="#eee" stroke-width="1" />
+    <line x1="50" y1="{{ i * 100 + 50 }}" x2="750" y1="{{ i * 100 + 50 }}" stroke="#eee" stroke-width="1" />
+    {% endfor %}
+    
+    <!-- Axis labels -->
+    <text x="400" y="30" text-anchor="middle" font-weight="bold">Probabilidad (P)</text>
+    <text x="20" y="300" text-anchor="middle" transform="rotate(-90, 20, 300)" font-weight="bold">Impacto (I)</text>
+    
+    <!-- X axis labels -->
+    {% for i in range(1, 6) %}
+    <text x="{{ i * 150 }}" y="570" text-anchor="middle">{{ i }}</text>
+    {% endfor %}
+    
+    <!-- Y axis labels -->
+    {% for i in range(1, 6) %}
+    <text x="40" y="{{ (6 - i) * 100 }}" text-anchor="middle">{{ i }}</text>
+    {% endfor %}
+    
+    <!-- Journey arrows -->
+    {% for journey in journeys %}
+    {% set ri_x = journey.ri_position.col * 150 %}
+    {% set ri_y = (6 - journey.ri_position.impact) * 100 %}
+    {% set rr_x = journey.rr_position.col * 150 %}
+    {% set rr_y = (6 - journey.rr_position.impact) * 100 %}
+    
+    <circle cx="{{ ri_x }}" cy="{{ ri_y }}" r="8" fill="#f44336" opacity="0.7">
+        <title>RI: {{ journey.risk_inherent }} - {{ journey.asset_name }}</title>
+    </circle>
+    <circle cx="{{ rr_x }}" cy="{{ rr_y }}" r="8" fill="#4caf50" opacity="0.7">
+        <title>RR: {{ journey.residual_risk }} - {{ journey.asset_name }}</title>
+    </circle>
+    <line x1="{{ ri_x }}" y1="{{ ri_y }}" x2="{{ rr_x }}" y2="{{ rr_y }}" 
+          stroke="#2196f3" stroke-width="2" marker-end="url(#arrowhead)" opacity="0.6" />
+    {% endfor %}
+</svg>
+
+<div style="display: flex; justify-content: center; gap: 2rem; margin: 1rem 0;">
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div style="width: 16px; height: 16px; border-radius: 50%; background: #f44336;"></div>
+        <span>Riesgo Inherente (RI)</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div style="width: 16px; height: 16px; border-radius: 50%; background: #4caf50;"></div>
+        <span>Riesgo Residual (RR)</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div style="width: 30px; height: 2px; background: #2196f3;"></div>
+        <span>Desplazamiento</span>
+    </div>
+</div>
+
+<h2>Detalle de Riesgos</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Activo</th>
+            <th>RI</th>
+            <th>RR</th>
+            <th>Madurez</th>
+            <th>Reducción</th>
+            <th>Pos RI</th>
+            <th>Pos RR</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for journey in journeys %}
+        <tr>
+            <td>{{ journey.asset_name }}</td>
+            <td style="text-align: center; color: #f44336; font-weight: bold;">{{ journey.risk_inherent }}</td>
+            <td style="text-align: center; color: #4caf50; font-weight: bold;">{{ journey.residual_risk }}</td>
+            <td style="text-align: center;">{{ journey.maturity_display }}%</td>
+            <td style="text-align: center; color: #2196f3;">{{ journey.reduction_percent }}%</td>
+            <td style="text-align: center;">{{ journey.ri_position.cell }}</td>
+            <td style="text-align: center;">{{ journey.rr_position.cell }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay riesgos con cálculo residual. Complete los cuestionarios de madurez para ver el viaje del riesgo.</p>
+{% endif %}
+{% endblock %}

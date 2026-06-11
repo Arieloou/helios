@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Usuario - Helios{% endblock %}
+
+{% block content %}
+<h1>Editar Usuario</h1>
+
+<form method="POST">
+    <label for="username">Nombre de usuario:</label>
+    <input type="text" name="username" id="username" value="{{ user.username }}" required>
+
+    <label for="email">Email (opcional):</label>
+    <input type="email" name="email" id="email" value="{{ user.email or '' }}">
+
+    <label for="role">Rol:</label>
+    <select name="role" id="role" required>
+        <option value="agent" {% if user.role == 'agent' %}selected{% endif %}>Agente de Seguridad</option>
+        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrador</option>
+    </select>
+
+    <div style="margin-top: 1rem;">
+        <button type="submit">Guardar Cambios</button>
+        <a href="/users" style="margin-left: 1rem;">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

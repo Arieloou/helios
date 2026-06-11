@@ -27,7 +27,10 @@
         <a href="/risk/">Riesgos</a>
         <a href="/treatment/risks">Tratamiento</a>
         <a href="/iso/">Auditoría ISO</a>
-        <a href="/auth/dashboard">Dashboard</a>
+        <a href="/dashboard/">Dashboard</a>
+        {% if session.get("user") and session.get("user").role == "admin" %}
+            <a href="/users/">Usuarios</a>
+        {% endif %}
         {% if session.get("user") %}
             <a href="/auth/logout">Cerrar sesión</a>
         {% else %}
