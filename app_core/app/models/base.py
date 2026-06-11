@@ -1,16 +1,15 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, DateTime, Boolean
-from app.database import Base
+from app.database import db
 
 
 class TimestampMixin:
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
 
 class SoftDeleteMixin:
-    is_deleted = Column(Boolean, default=False, nullable=False)
-    deleted_at = Column(DateTime, nullable=True)
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
+    deleted_at = db.Column(db.DateTime, nullable=True)
 
     def soft_delete(self):
         self.is_deleted = True
@@ -21,10 +20,10 @@ class SoftDeleteMixin:
         self.deleted_at = None
 
 
-class BaseModel(Base, TimestampMixin, SoftDeleteMixin):
+class BaseModel(db.Model):
     __abstract__ = True
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     def to_dict(self):
         result = {}
@@ -35,24 +34,15 @@ class BaseModel(Base, TimestampMixin, SoftDeleteMixin):
             result[column.name] = value
         return result
 
-    @classmethod
-    def get_by_id(cls, id):
-        return cls.query.filter(cls.id == id, cls.is_deleted == False).first()
-
-    @classmethod
-    def get_all(cls):
-        return cls.query.filter(cls.is_deleted == False).all()
-
-    def save(self, db):
-        db.add(self)
-        db.commit()
-        db.refresh(self)
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
         return self
 
-    def delete(self, db, soft=True):
+    def delete(self, soft=True):
         if soft:
             self.soft_delete()
-            db.commit()
+            db.session.commit()
         else:
-            db.delete(self)
-            db.commit()
+            db.session.delete(self)
+            db.session.commit()

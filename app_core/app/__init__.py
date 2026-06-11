@@ -25,17 +25,19 @@ def _load_config(app: Flask):
     app.config["SECRET_KEY"] = settings.SECRET_KEY
     app.config["ENCRYPTION_SERVICE_HOST"] = settings.ENCRYPTION_SERVICE_HOST
     app.config["ENCRYPTION_SERVICE_PORT"] = settings.ENCRYPTION_SERVICE_PORT
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_ECHO"] = settings.SQL_ECHO
 
 
 def _init_extensions(app: Flask):
-    encryption_ext.init_app(app)
+    from flask_migrate import Migrate
+    from .database import db
 
-    from .database import init_db, engine
-    try:
-        init_db(app)
-        app.logger.info("Database initialized successfully")
-    except Exception as e:
-        app.logger.warning(f"Database initialization skipped: {e}")
+    encryption_ext.init_app(app)
+    db.init_app(app)
+    migrate = Migrate(app, db)
+    app.logger.info("Database and migrations initialized")
 
 
 def _register_blueprints(app: Flask):
