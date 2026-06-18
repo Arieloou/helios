@@ -15,8 +15,11 @@ class AssessmentStatus(str, Enum):
 class Assessment(db.Model):
     __tablename__ = "assessments"
 
+    # Encrypted fields: middleware will auto-encrypt/decrypt these
+    __encrypted_fields__ = ["name", "description"]
+
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = db.Column(db.String(255), nullable=True)
+    name = db.Column(db.Text, nullable=True)
     description = db.Column(db.Text, nullable=True)
     period = db.Column(db.String(50), nullable=True)
     status = db.Column(db.String(20), default=AssessmentStatus.ACTIVE.value)

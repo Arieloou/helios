@@ -7,6 +7,6 @@ from .base import db, TimestampMixin
 from .asset import Asset
 from .assesment import Assessment
 from .risk_models import Threat, Vulnerability, AssetThreatMapping
-from .iso_models import *
-from .treatment_models import *
-from .user import *
+from .iso_models import ISOControl, ControlQuestion, ControlResponse, ControlMaturity
+from .treatment_models import TreatmentPlan, TreatmentTask
+from .user import User, UserRole

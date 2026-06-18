@@ -49,11 +49,16 @@ def _load_config(app: Flask) -> None:
 
 def _init_extensions(app: Flask) -> None:
     from flask_migrate import Migrate
+    from .services.encryption_middleware import register_encryption_events
 
     encryption_ext.init_app(app)
     db.init_app(app)
     migrate = Migrate(app, db)
-    app.logger.info("Database and migrations initialized")
+
+    # Register encrypt/decrypt event listeners for models with __encrypted_fields__
+    register_encryption_events(app, db)
+
+    app.logger.info("Database, migrations, and encryption middleware initialized")
 
 
 def _register_blueprints(app: Flask) -> None:

@@ -8,9 +8,12 @@ from .base import db, TimestampMixin
 class Asset(db.Model, TimestampMixin):
     __tablename__ = "assets"
 
+    # Encrypted fields: middleware will auto-encrypt/decrypt these
+    __encrypted_fields__ = ["name", "description"]
+
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     assessment_id = db.Column(db.String(36), db.ForeignKey("assessments.id"), nullable=True)
-    name = db.Column(db.String(255), nullable=True)
+    name = db.Column(db.Text, nullable=True)
     asset_type = db.Column(db.String(100), nullable=True)
     description = db.Column(db.Text, nullable=True)
     confidentiality = db.Column(db.Integer, default=1)

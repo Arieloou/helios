@@ -10,17 +10,10 @@ dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
 
 def _get_current_user():
+    """Get the current username from session."""
     user = session.get("user")
     if user:
-        try:
-            encryption = None
-            from flask import current_app
-            encryption = current_app.extensions.get("encryption")
-            if encryption:
-                return encryption.decrypt(user.get("username_encrypted", ""))
-            return "[cifrado]"
-        except Exception:
-            return "[cifrado]"
+        return user.get("username", "[desconocido]")
     return None
 
 
