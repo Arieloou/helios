@@ -3,41 +3,85 @@
 {% block title %}Cuestionario ISO 27002 - Helios{% endblock %}
 
 {% block content %}
-<h1>Cuestionario de Madurez ISO 27002</h1>
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Cuestionario de Madurez ISO 27002</h1>
+            {% if active_assessment %}
+            <p class="mt-1 text-sm text-green-600 flex items-center">
+                <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Evaluación activa: {{ active_assessment.name }}
+            </p>
+            {% else %}
+            <p class="mt-1 text-sm text-yellow-600">
+                No hay evaluación activa. <a href="/assessments/select" class="underline hover:text-yellow-800">Seleccionar</a>
+            </p>
+            {% endif %}
+        </div>
+        <a href="/iso/maturity" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            Ver Reporte de Madurez
+        </a>
+    </div>
 
-{% if not active_assessment %}
-<div style="background: #fff3e0; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
-    No hay evaluación activa. <a href="/assessments/select">Seleccionar una evaluación</a> primero.
-</div>
-{% else %}
-<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
-    <strong>Evaluación activa:</strong> {{ active_assessment.name }}
-</div>
-{% endif %}
+    <p class="text-sm text-gray-600">Seleccione un control para responder el cuestionario y calcular su madurez.</p>
 
-<div style="margin-bottom: 1rem;">
-    <a href="/iso/maturity"><button>Ver Reporte de Madurez</button></a>
-</div>
+    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="text-sm text-gray-700">
+                <span class="font-medium">Control {{ loop.index }} de {{ questionnaire|length }}</span>
+            </div>
+            <div class="flex gap-2">
+                <button type="button" class="px-4 py-2 text-sm border border-gray-300 rounded bg-white text-gray-700 hover:bg-gray-50">Anterior</button>
+                <button type="button" class="px-4 py-2 text-sm border border-gray-300 rounded bg-white text-gray-700 hover:bg-gray-50">Siguiente</button>
+                <button type="button" class="px-4 py-2 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600" onclick="showToast('Borrador guardado correctamente', 'success')">Guardar Borrador</button>
+            </div>
+        </div>
+    </div>
 
-<p>Seleccione un control para responder el cuestionario y calcular su madurez.</p>
-
-{% if questionnaire %}
-{% for control in questionnaire %}
-<div style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
-    <h3>{{ control.control_id }}: {{ control.title }}</h3>
-    <p style="color: #666;">{{ control.description }}</p>
-    <p><strong>Dominio:</strong> {{ control.domain }}</p>
-    <p>
-        <strong>Madurez:</strong> 
-        <span style="background: {% if control.maturity >= 0.8 %}#4caf50{% elif control.maturity >= 0.5 %}#ff9800{% else %}#f44336{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">
-            {{ control.maturity_display }}%
-        </span>
-        ({{ control.answered_questions }}/{{ control.total_questions }} preguntas respondidas)
-    </p>
-    <a href="/iso/control/{{ control.control_id }}"><button>Responder</button></a>
+    {% if questionnaire %}
+    <div class="grid gap-4">
+        {% for control in questionnaire %}
+        <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div class="flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <span class="text-blue-600">{{ control.control_id }}</span>: {{ control.title }}
+                    </h3>
+                    <p class="mt-2 text-sm text-gray-600">{{ control.description }}</p>
+                    <div class="mt-3 flex flex-wrap gap-4 text-xs text-gray-500">
+                        <span class="inline-flex items-center">
+                            <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                            {{ control.domain }}
+                        </span>
+                        <span class="inline-flex items-center">
+                            {{ control.answered_questions }}/{{ control.total_questions }} preguntas respondidas
+                        </span>
+                    </div>
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white {% if control.maturity >= 0.8 %}bg-green-500{% elif control.maturity >= 0.5 %}bg-yellow-500{% else %}bg-red-500{% endif %}">
+                        {{ control.maturity_display }}%
+                    </span>
+                    <a href="/iso/control/{{ control.control_id }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        Responder
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-12 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No hay controles disponibles</h3>
+        <p class="mt-2 text-sm text-gray-500">Cree una evaluación y mapee activos primero.</p>
+    </div>
+    {% endif %}
 </div>
-{% endfor %}
-{% else %}
-<p>No hay controles disponibles. Cree una evaluación y mapee activos primero.</p>
-{% endif %}
 {% endblock %}

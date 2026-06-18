@@ -4,7 +4,7 @@ Ejecutar desde el directorio app_core:
     & ".venv\Scripts\python.exe" run.py
 """
 
-from app.run import create_app
+from app import create_app
 from app.config import settings
 
 app = create_app()

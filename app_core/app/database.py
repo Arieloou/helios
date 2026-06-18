@@ -1,13 +1,10 @@
 import os
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 from .config import settings
-
-
-db = SQLAlchemy()
+from .models.base import db
 
 
 def get_database_url():
@@ -54,3 +51,10 @@ def get_db():
             yield session
         finally:
             session.close()
+
+
+def init_db(app):
+    """Initialize database with app context."""
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()

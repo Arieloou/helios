@@ -1,3 +1,4 @@
+import logging
 from typing import Dict, List, Optional
 from datetime import datetime
 
@@ -6,12 +7,15 @@ from app.models.risk_models import AssetThreatMapping
 from app.services.risk_classifier import RiskClassifier
 from app.services.assessment_service import AssessmentService
 
+logger = logging.getLogger(__name__)
+
 
 class TreatmentService:
     UNACCEPTABLE_RR_THRESHOLD = 12
 
     @classmethod
     def list_unacceptable_risks(cls, assessment_id: Optional[str] = None) -> List[Dict]:
+        logger.debug(f"Listing unacceptable risks for assessment_id={assessment_id}")
         if assessment_id:
             mappings = AssetThreatMapping.get_by_assessment(assessment_id)
         else:
@@ -61,8 +65,10 @@ class TreatmentService:
         strategy: str,
         assessment_id: Optional[str] = None,
     ) -> Dict:
+        logger.info(f"Creating treatment plan for mapping_id={mapping_id}, strategy={strategy}")
         mapping = AssetThreatMapping.get_by_id(mapping_id)
         if not mapping:
+            logger.error(f"Mapping not found: {mapping_id}")
             raise ValueError(f"Mapeo no encontrado: {mapping_id}")
 
         if not assessment_id:
@@ -85,7 +91,7 @@ class TreatmentService:
             status="pending",
         )
 
-        return plan.to_dict()
+        return TreatmentPlan.get_by_id(plan.id).to_dict()
 
     @classmethod
     def update_plan(
@@ -184,7 +190,7 @@ class TreatmentService:
             progress_percentage=0,
         )
 
-        return task.to_dict()
+        return TreatmentTask.get_by_id(task.id).to_dict()
 
     @classmethod
     def update_task(

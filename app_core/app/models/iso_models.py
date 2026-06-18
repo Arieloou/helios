@@ -2,24 +2,24 @@ from datetime import datetime
 from typing import Dict, List, Optional
 import uuid
 
+from .base import db
 
-class ISOControl:
+
+class ISOControl(db.Model):
+    __tablename__ = "iso_controls"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    control_id = db.Column(db.String(50), unique=True, nullable=False)
+    domain = db.Column(db.String(100), default="")
+    title = db.Column(db.String(255), default="")
+    description = db.Column(db.Text, default="")
+
     _instances: Dict[str, "ISOControl"] = {}
 
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        control_id: str = "",
-        domain: str = "",
-        title: str = "",
-        description: str = "",
-    ):
-        self.id = id or str(uuid.uuid4())
-        self.control_id = control_id
-        self.domain = domain
-        self.title = title
-        self.description = description
-        self._instances[self.id] = self
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.id:
+            self._instances[self.id] = self
 
     def to_dict(self) -> Dict:
         return {
@@ -32,44 +32,42 @@ class ISOControl:
 
     @classmethod
     def get_by_id(cls, id: str) -> Optional["ISOControl"]:
-        return cls._instances.get(id)
+        if id in cls._instances:
+            return cls._instances[id]
+        return cls.query.get(id)
 
     @classmethod
     def get_by_control_id(cls, control_id: str) -> Optional["ISOControl"]:
-        for c in cls._instances.values():
-            if c.control_id == control_id:
-                return c
-        return None
+        return cls.query.filter_by(control_id=control_id).first()
 
     @classmethod
     def get_all(cls) -> List["ISOControl"]:
-        return list(cls._instances.values())
+        return cls.query.all()
 
     @classmethod
     def get_by_domain(cls, domain: str) -> List["ISOControl"]:
-        return [c for c in cls._instances.values() if c.domain == domain]
+        return cls.query.filter_by(domain=domain).all()
 
     @classmethod
     def get_domains(cls) -> List[str]:
-        domains = set(c.domain for c in cls._instances.values())
-        return sorted(list(domains))
+        domains = db.session.query(cls.domain).distinct().all()
+        return sorted([d[0] for d in domains if d[0]])
 
 
-class ControlQuestion:
+class ControlQuestion(db.Model):
+    __tablename__ = "control_questions"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    control_id = db.Column(db.String(50), db.ForeignKey("iso_controls.control_id"), nullable=False)
+    question_text = db.Column(db.Text, default="")
+    options = db.Column(db.Text, default="[]")
+
     _instances: Dict[str, "ControlQuestion"] = {}
 
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        control_id: str = "",
-        question_text: str = "",
-        options: str = "[]",
-    ):
-        self.id = id or str(uuid.uuid4())
-        self.control_id = control_id
-        self.question_text = question_text
-        self.options = options
-        self._instances[self.id] = self
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.id:
+            self._instances[self.id] = self
 
     def to_dict(self) -> Dict:
         import json
@@ -82,38 +80,36 @@ class ControlQuestion:
 
     @classmethod
     def get_by_id(cls, id: str) -> Optional["ControlQuestion"]:
-        return cls._instances.get(id)
+        if id in cls._instances:
+            return cls._instances[id]
+        return cls.query.get(id)
 
     @classmethod
     def get_by_control(cls, control_id: str) -> List["ControlQuestion"]:
-        return [q for q in cls._instances.values() if q.control_id == control_id]
+        return cls.query.filter_by(control_id=control_id).all()
 
     @classmethod
     def get_all(cls) -> List["ControlQuestion"]:
-        return list(cls._instances.values())
+        return cls.query.all()
 
 
-class ControlResponse:
+class ControlResponse(db.Model):
+    __tablename__ = "control_responses"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    assessment_id = db.Column(db.String(36), db.ForeignKey("assessments.id"), nullable=True)
+    control_id = db.Column(db.String(50), db.ForeignKey("iso_controls.control_id"), nullable=False)
+    question_id = db.Column(db.String(36), db.ForeignKey("control_questions.id"), nullable=False)
+    response = db.Column(db.Integer, nullable=True)
+    score = db.Column(db.Float, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
     _instances: Dict[str, "ControlResponse"] = {}
 
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        assessment_id: Optional[str] = None,
-        control_id: str = "",
-        question_id: str = "",
-        response: Optional[int] = None,
-        score: Optional[float] = None,
-        created_at: Optional[datetime] = None,
-    ):
-        self.id = id or str(uuid.uuid4())
-        self.assessment_id = assessment_id
-        self.control_id = control_id
-        self.question_id = question_id
-        self.response = response
-        self.score = score
-        self.created_at = created_at or datetime.now()
-        self._instances[self.id] = self
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.id:
+            self._instances[self.id] = self
 
     def to_dict(self) -> Dict:
         return {
@@ -128,42 +124,40 @@ class ControlResponse:
 
     @classmethod
     def get_by_id(cls, id: str) -> Optional["ControlResponse"]:
-        return cls._instances.get(id)
+        if id in cls._instances:
+            return cls._instances[id]
+        return cls.query.get(id)
 
     @classmethod
     def get_by_assessment(cls, assessment_id: str) -> List["ControlResponse"]:
-        return [r for r in cls._instances.values() if r.assessment_id == assessment_id]
+        return cls.query.filter_by(assessment_id=assessment_id).all()
 
     @classmethod
     def get_by_control(cls, assessment_id: str, control_id: str) -> List["ControlResponse"]:
-        return [r for r in cls._instances.values() 
-                if r.assessment_id == assessment_id and r.control_id == control_id]
+        return cls.query.filter_by(assessment_id=assessment_id, control_id=control_id).all()
 
     @classmethod
     def get_by_question(cls, assessment_id: str, question_id: str) -> Optional["ControlResponse"]:
-        for r in cls._instances.values():
-            if r.assessment_id == assessment_id and r.question_id == question_id:
-                return r
-        return None
+        return cls.query.filter_by(assessment_id=assessment_id, question_id=question_id).first()
 
 
-class ControlMaturity:
+class ControlMaturity(db.Model):
+    __tablename__ = "control_maturities"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    assessment_id = db.Column(db.String(36), db.ForeignKey("assessments.id"), nullable=True)
+    control_id = db.Column(db.String(50), db.ForeignKey("iso_controls.control_id"), nullable=False)
+    maturity_percentage = db.Column(db.Float, default=0.0)
+    updated_at = db.Column(db.DateTime, nullable=True)
+
     _instances: Dict[str, "ControlMaturity"] = {}
 
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        assessment_id: Optional[str] = None,
-        control_id: str = "",
-        maturity_percentage: float = 0.0,
-        updated_at: Optional[datetime] = None,
-    ):
-        self.id = id or str(uuid.uuid4())
-        self.assessment_id = assessment_id
-        self.control_id = control_id
-        self.maturity_percentage = max(0.0, min(1.0, maturity_percentage))
-        self.updated_at = updated_at
-        self._instances[self.id] = self
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.id:
+            self._instances[self.id] = self
+        if self.maturity_percentage:
+            self.maturity_percentage = max(0.0, min(1.0, self.maturity_percentage))
 
     def to_dict(self) -> Dict:
         return {
@@ -177,34 +171,33 @@ class ControlMaturity:
 
     @classmethod
     def get_by_id(cls, id: str) -> Optional["ControlMaturity"]:
-        return cls._instances.get(id)
+        if id in cls._instances:
+            return cls._instances[id]
+        return cls.query.get(id)
 
     @classmethod
     def get_by_assessment(cls, assessment_id: str) -> List["ControlMaturity"]:
-        return [m for m in cls._instances.values() if m.assessment_id == assessment_id]
+        return cls.query.filter_by(assessment_id=assessment_id).all()
 
     @classmethod
     def get_by_control(cls, assessment_id: str, control_id: str) -> Optional["ControlMaturity"]:
-        for m in cls._instances.values():
-            if m.assessment_id == assessment_id and m.control_id == control_id:
-                return m
-        return None
+        return cls.query.filter_by(assessment_id=assessment_id, control_id=control_id).first()
 
     @classmethod
     def calculate_maturity(cls, assessment_id: str, control_id: str) -> float:
         responses = ControlResponse.get_by_control(assessment_id, control_id)
         if not responses:
             return 0.0
-        
+
         total_score = 0.0
         max_score = 0.0
-        
+
         for r in responses:
             if r.score is not None:
                 total_score += r.score
                 max_score += 1.0
-        
+
         if max_score == 0:
             return 0.0
-        
+
         return total_score / max_score

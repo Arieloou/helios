@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify
 
 from app.services.magerit_service import MageritService
 from app.services.assessment_service import AssessmentService
@@ -139,6 +139,28 @@ def matrix():
         mappings=mappings,
         active_assessment=active_assessment,
     )
+
+
+@risk_bp.route("/matrix/export")
+def matrix_export():
+    from app.services.risk_classifier import RiskClassifier
+    active_assessment = AssessmentService.get_active()
+    mappings = MageritService.list_mappings(active_assessment["id"] if active_assessment else None)
+
+    export_data = []
+    for mapping in mappings:
+        risk_inherent = mapping.get("risk_inherent", 0)
+        risk_level = RiskClassifier.get_risk_zone(risk_inherent) if risk_inherent else "Bajo"
+
+        export_data.append({
+            "asset_name": mapping.get("asset_name", ""),
+            "impact": mapping.get("impact"),
+            "probability": mapping.get("probability"),
+            "risk_inherent": risk_inherent,
+            "risk_level": risk_level,
+        })
+
+    return jsonify({"mappings": export_data, "count": len(export_data)})
 
 
 @risk_bp.route("/recalculate")

@@ -3,44 +3,70 @@
 {% block title %}Control {{ control.control_id }} - Helios{% endblock %}
 
 {% block content %}
-<h1>{{ control.control_id }}: {{ control.title }}</h1>
+<div class="max-w-3xl mx-auto">
+    <div class="mb-6">
+        <a href="/iso/" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
+            <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Volver al Cuestionario
+        </a>
+    </div>
 
-<p>{{ control.description }}</p>
+    <div class="bg-white shadow-sm border border-gray-200 rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h1 class="text-xl font-bold text-gray-900">
+                    <span class="text-blue-600">{{ control.control_id }}</span>: {{ control.title }}
+                </h1>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white {% if maturity.maturity_percentage >= 0.8 %}bg-green-500{% elif maturity.maturity_percentage >= 0.5 %}bg-yellow-500{% else %}bg-red-500{% endif %}">
+                    {{ maturity.maturity_percentage_display }}%
+                </span>
+            </div>
+        </div>
 
-<p><strong>Madurez actual:</strong> 
-    <span style="background: {% if maturity.maturity_percentage >= 0.8 %}#4caf50{% elif maturity.maturity_percentage >= 0.5 %}#ff9800{% else %}#f44336{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">
-        {{ maturity.maturity_percentage_display }}%
-    </span>
-</p>
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <p class="text-sm text-gray-600">{{ control.description }}</p>
+        </div>
 
-<form method="POST">
-    {% for question in questions %}
-    <fieldset style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem;">
-        <legend style="font-weight: bold;">{{ question.question_text }}</legend>
-        <label>
-            <input type="radio" name="q_{{ question.id }}" value="0" {% if response_map.get(question.id) and response_map[question.id].response == 0 %}checked{% endif %}>
-            No implementado (0%)
-        </label><br>
-        <label>
-            <input type="radio" name="q_{{ question.id }}" value="25" {% if response_map.get(question.id) and response_map[question.id].response == 25 %}checked{% endif %}>
-            En desarrollo (25%)
-        </label><br>
-        <label>
-            <input type="radio" name="q_{{ question.id }}" value="50" {% if response_map.get(question.id) and response_map[question.id].response == 50 %}checked{% endif %}>
-            Parcialmente implementado (50%)
-        </label><br>
-        <label>
-            <input type="radio" name="q_{{ question.id }}" value="75" {% if response_map.get(question.id) and response_map[question.id].response == 75 %}checked{% endif %}>
-            Mayormente implementado (75%)
-        </label><br>
-        <label>
-            <input type="radio" name="q_{{ question.id }}" value="100" {% if response_map.get(question.id) and response_map[question.id].response == 100 %}checked{% endif %}>
-            Completamente implementado (100%)
-        </label>
-    </fieldset>
-    {% endfor %}
+        <form method="POST" class="px-6 py-6 space-y-6">
+            {% for question in questions %}
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="text-sm font-medium text-gray-900 mb-4">{{ question.question_text }}</h3>
+                <div class="space-y-2">
+                    <label class="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                        <input type="radio" name="q_{{ question.id }}" value="0" {% if response_map.get(question.id) and response_map[question.id].response == 0 %}checked{% endif %} class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <span class="ml-3 text-sm text-gray-700">No implementado (0%)</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                        <input type="radio" name="q_{{ question.id }}" value="25" {% if response_map.get(question.id) and response_map[question.id].response == 25 %}checked{% endif %} class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <span class="ml-3 text-sm text-gray-700">En desarrollo (25%)</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                        <input type="radio" name="q_{{ question.id }}" value="50" {% if response_map.get(question.id) and response_map[question.id].response == 50 %}checked{% endif %} class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <span class="ml-3 text-sm text-gray-700">Parcialmente implementado (50%)</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                        <input type="radio" name="q_{{ question.id }}" value="75" {% if response_map.get(question.id) and response_map[question.id].response == 75 %}checked{% endif %} class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <span class="ml-3 text-sm text-gray-700">Mayormente implementado (75%)</span>
+                    </label>
+                    <label class="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer transition-colors">
+                        <input type="radio" name="q_{{ question.id }}" value="100" {% if response_map.get(question.id) and response_map[question.id].response == 100 %}checked{% endif %} class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <span class="ml-3 text-sm text-gray-700">Completamente implementado (100%)</span>
+                    </label>
+                </div>
+            </div>
+            {% endfor %}
 
-    <button type="submit">Guardar Respuestas</button>
-    <a href="/iso/" style="margin-left: 1rem;">Volver</a>
-</form>
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <a href="/iso/" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    Cancelar
+                </a>
+                <button type="submit" class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Guardar Respuestas
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

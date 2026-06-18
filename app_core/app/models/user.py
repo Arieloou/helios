@@ -43,8 +43,8 @@ class User:
             "email": self.email,
             "role": self.role,
             "is_active": self.is_active,
-            "failed_attempts": self.failed_attempts,
-            "locked_until": self.locked_until.isoformat() if self.locked_until else None,
+            "failed_attempts": self.failed_attempts, # The user only have 5 attempts, then the account will be locked for 15 minutes
+            "locked_until": self.locked_until.isoformat() if self.locked_until else None, # The user will be locked for 15 minutes
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }

@@ -3,91 +3,123 @@
 {% block title %}Mapeo de Riesgos - Helios{% endblock %}
 
 {% block content %}
-<h1>Mapeo de Activos - Amenazas - Vulnerabilidades</h1>
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Mapeo de Activos - Amenazas - Vulnerabilidades</h1>
+            {% if active_assessment %}
+            <p class="mt-1 text-sm text-green-600 flex items-center">
+                <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Evaluación activa: {{ active_assessment.name }}
+            </p>
+            {% else %}
+            <p class="mt-1 text-sm text-yellow-600">
+                No hay evaluación activa. <a href="/assessments/select" class="underline hover:text-yellow-800">Seleccionar</a>
+            </p>
+            {% endif %}
+        </div>
+        <div class="flex gap-3">
+            <a href="/risk/create" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Nuevo Mapeo
+            </a>
+            <a href="/risk/matrix" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Ver Matriz
+            </a>
+        </div>
+    </div>
 
-{% if not active_assessment %}
-<div style="background: #fff3e0; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
-    No hay evaluación activa. <a href="/assessments/select">Seleccionar una evaluación</a> primero.
-</div>
-{% else %}
-<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
-    <strong>Evaluación activa:</strong> {{ active_assessment.name }}
-</div>
-{% endif %}
+    {% if summary.total_mappings > 0 %}
+    <div class="bg-blue-50 border border-blue-100 rounded-lg p-4">
+        <div class="flex flex-wrap gap-4 text-sm">
+            <span class="text-blue-800"><span class="font-medium">Mapeos:</span> {{ summary.total_mappings }}</span>
+            <span class="text-blue-800"><span class="font-medium">RI Promedio:</span> {{ summary.avg_risk_inherent }}</span>
+            <span class="text-blue-800"><span class="font-medium">RI Máximo:</span> {{ summary.max_risk_inherent }}</span>
+            <span class="text-blue-800"><span class="font-medium">Madurez:</span> {{ summary.avg_maturity_display }}%</span>
+            <span class="text-blue-800"><span class="font-medium">RR Promedio:</span> {{ summary.avg_residual_risk }}</span>
+        </div>
+    </div>
+    {% endif %}
 
-<div style="margin-bottom: 1rem;">
-    <a href="/risk/create"><button>+ Nuevo Mapeo</button></a>
-    <a href="/risk/matrix"><button>Ver Matriz de Riesgos</button></a>
-    <a href="/risk/recalculate"><button>Recalcular RR</button></a>
+    {% if mappings %}
+    <div class="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
+                        <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">V_total</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amenaza</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vulnerabilidad</th>
+                        <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Probabilidad">P</th>
+                        <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Degradación">D</th>
+                        <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Impacto</th>
+                        <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Riesgo Inherente">RI</th>
+                        <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Madurez">M</th>
+                        <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" title="Riesgo Residual">RR</th>
+                        <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for mapping in mappings %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ mapping.asset_name }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center text-sm text-gray-900">{{ mapping.asset_v_total }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ mapping.threat_id[:20] }}{% if mapping.threat_id|length > 20 %}...{% endif %}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ mapping.vulnerability_id[:20] }}{% if mapping.vulnerability_id|length > 20 %}...{% endif %}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center text-sm text-gray-900">{{ mapping.probability }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center text-sm text-gray-900">{{ mapping.degradation }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center text-sm text-gray-900">{{ mapping.impact or '-' }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center">
+                            {% if mapping.risk_inherent %}
+                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-medium {% if mapping.risk_inherent >= 15 %}bg-red-600{% elif mapping.risk_inherent >= 8 %}bg-orange-500{% elif mapping.risk_inherent >= 4 %}bg-yellow-500{% else %}bg-green-500{% endif %}">
+                                {{ mapping.risk_inherent }}
+                            </span>
+                            {% else %}
+                            <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white {% if mapping.maturity >= 0.8 %}bg-green-500{% elif mapping.maturity >= 0.5 %}bg-orange-500{% else %}bg-red-500{% endif %}">
+                                {{ mapping.maturity_display }}%
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center">
+                            {% if mapping.residual_risk %}
+                            <span class="inline-flex items-center justify-center px-2 py-0.5 rounded text-sm font-bold text-white {% if mapping.residual_risk >= 15 %}bg-red-600{% elif mapping.residual_risk >= 8 %}bg-orange-500{% elif mapping.residual_risk >= 4 %}bg-yellow-500{% else %}bg-green-500{% endif %}">
+                                {{ mapping.residual_risk }}
+                            </span>
+                            {% else %}
+                            <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="/risk/{{ mapping.id }}/edit" class="text-blue-600 hover:text-blue-900 mr-3">Editar</a>
+                            <a href="/risk/{{ mapping.id }}/delete" onclick="return confirm('¿Eliminar este mapeo?')" class="text-red-600 hover:text-red-900">Eliminar</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-12 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No hay mapeos de riesgos</h3>
+        <p class="mt-2 text-sm text-gray-500">Crea tu primer mapeo para comenzar el análisis.</p>
+        <div class="mt-6">
+            <a href="/risk/create" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                Crear el primer mapeo
+            </a>
+        </div>
+    </div>
+    {% endif %}
 </div>
-
-{% if summary.total_mappings > 0 %}
-<div style="background: #e3f2fd; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
-    <strong>Resumen:</strong> 
-    Mapeos: {{ summary.total_mappings }} | 
-    RI Promedio: {{ summary.avg_risk_inherent }} | 
-    RI Máximo: {{ summary.max_risk_inherent }} |
-    Madurez Promedio: {{ summary.avg_maturity_display }}% |
-    RR Promedio: {{ summary.avg_residual_risk }} |
-    RR Máximo: {{ summary.max_residual_risk }}
-</div>
-{% endif %}
-
-{% if mappings %}
-<table>
-    <thead>
-        <tr>
-            <th>Activo</th>
-            <th>V_total</th>
-            <th>Amenaza</th>
-            <th>Vulnerabilidad</th>
-            <th title="Probabilidad">P</th>
-            <th title="Degradación">D</th>
-            <th>Impacto</th>
-            <th title="Riesgo Inherente">RI</th>
-            <th title="Madurez">M</th>
-            <th title="Riesgo Residual">RR</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for mapping in mappings %}
-        <tr>
-            <td>{{ mapping.asset_name }}</td>
-            <td style="text-align: center;">{{ mapping.asset_v_total }}</td>
-            <td>{{ mapping.threat_id[:15] }}...</td>
-            <td>{{ mapping.vulnerability_id[:15] }}...</td>
-            <td style="text-align: center;">{{ mapping.probability }}</td>
-            <td style="text-align: center;">{{ mapping.degradation }}</td>
-            <td style="text-align: center;">{{ mapping.impact or '-' }}</td>
-            <td style="text-align: center;">
-                {% if mapping.risk_inherent %}
-                <span style="background: {% if mapping.risk_inherent >= 15 %}#f44336{% elif mapping.risk_inherent >= 8 %}#ff9800{% elif mapping.risk_inherent >= 4 %}#ffc107{% else %}#4caf50{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">
-                    {{ mapping.risk_inherent }}
-                </span>
-                {% else %}-{% endif %}
-            </td>
-            <td style="text-align: center;">
-                <span style="background: {% if mapping.maturity >= 0.8 %}#4caf50{% elif mapping.maturity >= 0.5 %}#ff9800{% else %}#f44336{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">
-                    {{ mapping.maturity_display }}%
-                </span>
-            </td>
-            <td style="text-align: center;">
-                {% if mapping.residual_risk %}
-                <span style="background: {% if mapping.residual_risk >= 15 %}#f44336{% elif mapping.residual_risk >= 8 %}#ff9800{% elif mapping.residual_risk >= 4 %}#ffc107{% else %}#4caf50{% endif %}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: bold;">
-                    {{ mapping.residual_risk }}
-                </span>
-                {% else %}-{% endif %}
-            </td>
-            <td>
-                <a href="/risk/{{ mapping.id }}/edit">Editar</a>
-                <a href="/risk/{{ mapping.id }}/delete" onclick="return confirm(¿Eliminar este mapeo?)">Eliminar</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No hay mapeos de riesgos. <a href="/risk/create">Crear el primer mapeo</a></p>
-{% endif %}
 {% endblock %}

@@ -10,7 +10,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     SECRET_KEY: str = "helios-dev-secret-change-in-production"
     FLASK_PORT: int = 5000
-    FLASK_DEBUG: bool = True
+    FLASK_DEBUG: bool = False
     ENCRYPTION_SERVICE_HOST: str = "localhost"
     ENCRYPTION_SERVICE_PORT: int = 50051
 

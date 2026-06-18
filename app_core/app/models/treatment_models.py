@@ -2,28 +2,24 @@ from datetime import datetime
 from typing import Dict, List, Optional
 import uuid
 
+from .base import db, TimestampMixin
 
-class TreatmentPlan:
+
+class TreatmentPlan(db.Model, TimestampMixin):
+    __tablename__ = "treatment_plans"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    assessment_id = db.Column(db.String(36), db.ForeignKey("assessments.id"), nullable=True)
+    mapping_id = db.Column(db.String(36), db.ForeignKey("asset_threat_mappings.id"), nullable=False)
+    strategy = db.Column(db.String(50), default="mitigate")
+    status = db.Column(db.String(50), default="pending")
+
     _instances: Dict[str, "TreatmentPlan"] = {}
 
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        assessment_id: Optional[str] = None,
-        mapping_id: str = "",
-        strategy: str = "mitigate",
-        status: str = "pending",
-        created_at: Optional[datetime] = None,
-        updated_at: Optional[datetime] = None,
-    ):
-        self.id = id or str(uuid.uuid4())
-        self.assessment_id = assessment_id
-        self.mapping_id = mapping_id
-        self.strategy = strategy
-        self.status = status
-        self.created_at = created_at or datetime.now()
-        self.updated_at = updated_at
-        self._instances[self.id] = self
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.id:
+            self._instances[self.id] = self
 
     def to_dict(self) -> Dict:
         return {
@@ -42,56 +38,52 @@ class TreatmentPlan:
             raise ValueError(f"Estado inválido: {status}")
         self.status = status
         self.updated_at = datetime.now()
+        db.session.commit()
 
     @classmethod
     def get_by_id(cls, id: str) -> Optional["TreatmentPlan"]:
-        return cls._instances.get(id)
+        if id in cls._instances:
+            return cls._instances[id]
+        return cls.query.get(id)
 
     @classmethod
     def get_all(cls) -> List["TreatmentPlan"]:
-        return list(cls._instances.values())
+        return cls.query.all()
 
     @classmethod
     def get_by_assessment(cls, assessment_id: str) -> List["TreatmentPlan"]:
-        return [p for p in cls._instances.values() if p.assessment_id == assessment_id]
+        return cls.query.filter_by(assessment_id=assessment_id).all()
 
     @classmethod
     def get_by_mapping(cls, mapping_id: str) -> Optional["TreatmentPlan"]:
-        for plan in cls._instances.values():
-            if plan.mapping_id == mapping_id:
-                return plan
-        return None
+        return cls.query.filter_by(mapping_id=mapping_id).first()
 
     def delete(self) -> None:
         if self.id in self._instances:
             del self._instances[self.id]
+        db.session.delete(self)
+        db.session.commit()
 
 
-class TreatmentTask:
+class TreatmentTask(db.Model, TimestampMixin):
+    __tablename__ = "treatment_tasks"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    plan_id = db.Column(db.String(36), db.ForeignKey("treatment_plans.id"), nullable=False)
+    description = db.Column(db.Text, default="")
+    responsible = db.Column(db.String(255), nullable=True)
+    due_date = db.Column(db.Date, nullable=True)
+    status = db.Column(db.String(50), default="pending")
+    progress_percentage = db.Column(db.Integer, default=0)
+
     _instances: Dict[str, "TreatmentTask"] = {}
 
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        plan_id: str = "",
-        description: str = "",
-        responsible: Optional[str] = None,
-        due_date: Optional[datetime] = None,
-        status: str = "pending",
-        progress_percentage: int = 0,
-        created_at: Optional[datetime] = None,
-        updated_at: Optional[datetime] = None,
-    ):
-        self.id = id or str(uuid.uuid4())
-        self.plan_id = plan_id
-        self.description = description
-        self.responsible = responsible
-        self.due_date = due_date
-        self.status = status
-        self.progress_percentage = max(0, min(100, progress_percentage))
-        self.created_at = created_at or datetime.now()
-        self.updated_at = updated_at
-        self._instances[self.id] = self
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.id:
+            self._instances[self.id] = self
+        if self.progress_percentage:
+            self.progress_percentage = max(0, min(100, self.progress_percentage))
 
     def to_dict(self) -> Dict:
         return {
@@ -114,19 +106,24 @@ class TreatmentTask:
                 raise ValueError(f"Estado inválido: {status}")
             self.status = status
         self.updated_at = datetime.now()
+        db.session.commit()
 
     @classmethod
     def get_by_id(cls, id: str) -> Optional["TreatmentTask"]:
-        return cls._instances.get(id)
+        if id in cls._instances:
+            return cls._instances[id]
+        return cls.query.get(id)
 
     @classmethod
     def get_all(cls) -> List["TreatmentTask"]:
-        return list(cls._instances.values())
+        return cls.query.all()
 
     @classmethod
     def get_by_plan(cls, plan_id: str) -> List["TreatmentTask"]:
-        return [t for t in cls._instances.values() if t.plan_id == plan_id]
+        return cls.query.filter_by(plan_id=plan_id).all()
 
     def delete(self) -> None:
         if self.id in self._instances:
             del self._instances[self.id]
+        db.session.delete(self)
+        db.session.commit()

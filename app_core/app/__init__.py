@@ -4,35 +4,51 @@ Configura la aplicación Flask, inicializa extensiones y
 registra los blueprints.
 """
 
+import logging
+
 from flask import Flask
 
 from .config import settings
 from .extensions import encryption_ext
+from .database import db
 
 
 def create_app() -> Flask:
     app = Flask(__name__)
 
+    _setup_logging(app)
     _load_config(app)
     _init_extensions(app)
     _register_blueprints(app)
     _register_error_handlers(app)
+    _register_root_redirect(app)
 
     return app
 
 
-def _load_config(app: Flask):
+def _setup_logging(app: Flask) -> None:
+    log_level = logging.DEBUG if settings.FLASK_DEBUG else logging.INFO
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+    app.logger.setLevel(log_level)
+    app.logger.info("Helios application starting...")
+
+
+def _load_config(app: Flask) -> None:
     app.config["SECRET_KEY"] = settings.SECRET_KEY
+    app.config["DEBUG"] = settings.FLASK_DEBUG
     app.config["ENCRYPTION_SERVICE_HOST"] = settings.ENCRYPTION_SERVICE_HOST
     app.config["ENCRYPTION_SERVICE_PORT"] = settings.ENCRYPTION_SERVICE_PORT
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+    db_uri = "postgresql://" + settings.DB_USER + ":" + settings.DB_PASSWORD + "@" + settings.DB_HOST + ":" + settings.DB_PORT + "/" + settings.DB_NAME
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SQLALCHEMY_ECHO"] = settings.SQL_ECHO
 
 
-def _init_extensions(app: Flask):
+def _init_extensions(app: Flask) -> None:
     from flask_migrate import Migrate
-    from .database import db
 
     encryption_ext.init_app(app)
     db.init_app(app)
@@ -40,7 +56,8 @@ def _init_extensions(app: Flask):
     app.logger.info("Database and migrations initialized")
 
 
-def _register_blueprints(app: Flask):
+def _register_blueprints(app: Flask) -> None:
+    """Register all application blueprints."""
     from .controllers.authcontroller import auth_bp
     from .controllers.assetcontroller import asset_bp
     from .controllers.assessment_controller import assessment_bp
@@ -61,13 +78,57 @@ def _register_blueprints(app: Flask):
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(user_bp)
 
+    app.logger.debug("All blueprints registered")
 
-def _register_error_handlers(app: Flask):
+
+def _register_error_handlers(app: Flask) -> None:
+    from flask import jsonify
+
     @app.errorhandler(ConnectionError)
     def handle_encryption_unavailable(error):
-        from flask import jsonify
-
+        app.logger.error(f"Encryption service unavailable: {error}")
         return jsonify({
             "error": "Servicio de cifrado no disponible",
             "detail": str(error),
         }), 503
+
+    @app.errorhandler(404)
+    def handle_not_found(error):
+        app.logger.warning(f"Resource not found: {error}")
+        return jsonify({
+            "error": "Recurso no encontrado",
+            "detail": str(error),
+        }), 404
+
+    @app.errorhandler(500)
+    def handle_internal_error(error):
+        app.logger.error(f"Internal server error: {error}")
+        return jsonify({
+            "error": "Error interno del servidor",
+            "detail": "Ha ocurrido un error inesperado",
+        }), 500
+
+    @app.errorhandler(ValueError)
+    def handle_value_error(error):
+        app.logger.warning(f"Invalid value: {error}")
+        return jsonify({
+            "error": "Valor inválido",
+            "detail": str(error),
+        }), 400
+
+    @app.errorhandler(Exception)
+    def handle_unhandled_exception(error):
+        app.logger.error(f"Unhandled exception: {error}", exc_info=True)
+        return jsonify({
+            "error": "Error inesperado",
+            "detail": "Ha ocurrido un error inesperado",
+        }), 500
+
+
+def _register_root_redirect(app: Flask):
+    from flask import redirect, url_for
+
+    @app.route("/")
+    def index():
+        app.logger.debug("Redirecting root to auth.login")
+        return redirect(url_for("auth.login"))

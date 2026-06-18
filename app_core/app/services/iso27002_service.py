@@ -1,9 +1,13 @@
+import logging
 from typing import Dict, List, Optional
 import json
 
 from app.models.iso_models import ISOControl, ControlQuestion, ControlResponse, ControlMaturity
-from app.models.risk_models import AssetThreatMapping
+from app.models.risk_models import AssetThreatMapping, Vulnerability
 from app.services.assessment_service import AssessmentService
+from app.data.iso_controls import VULNERABILITY_CONTROL_MAP
+
+logger = logging.getLogger(__name__)
 
 
 class ISO27002Service:
@@ -28,31 +32,29 @@ class ISO27002Service:
             active = AssessmentService.get_active()
             if active:
                 assessment_id = active["id"]
-        
+
         if not assessment_id:
             return []
-        
+
         mappings = AssetThreatMapping.get_by_assessment(assessment_id)
-        
+
         applicable_controls = set()
         for mapping in mappings:
-            applicable_controls.add("A.5.1")
-            applicable_controls.add("A.5.2")
-            applicable_controls.add("A.6.1")
-            applicable_controls.add("A.7.1")
-            applicable_controls.add("A.7.2")
-            applicable_controls.add("A.8.1")
-            applicable_controls.add("A.8.2")
-            applicable_controls.add("A.9.1")
-            applicable_controls.add("A.9.2")
-            applicable_controls.add("A.9.4")
-            applicable_controls.add("A.10.1")
-            applicable_controls.add("A.11.1")
-            applicable_controls.add("A.11.2")
-            applicable_controls.add("A.12.1")
-            applicable_controls.add("A.12.2")
-            applicable_controls.add("A.12.3")
-        
+            vuln = Vulnerability.get_by_id(mapping.vulnerability_id)
+            if vuln and vuln.category in VULNERABILITY_CONTROL_MAP:
+                applicable_controls.update(VULNERABILITY_CONTROL_MAP[vuln.category])
+
+        if not applicable_controls:
+            from app.data.catalogs import initialize_catalogs, get_vulnerability_categories
+            initialize_catalogs()
+            all_vulns = Vulnerability.get_all()
+            for vuln in all_vulns:
+                if vuln.category in VULNERABILITY_CONTROL_MAP:
+                    applicable_controls.update(VULNERABILITY_CONTROL_MAP[vuln.category])
+
+        if not applicable_controls:
+            applicable_controls.update(["A.5.1", "A.6.1", "A.9.1", "A.12.1"])
+
         controls = []
         for control_id in sorted(applicable_controls):
             control = ISOControl.get_by_control_id(control_id)
@@ -83,8 +85,10 @@ class ISO27002Service:
         question_id: str,
         response: int,
     ) -> Dict:
+        logger.info(f"Saving response for assessment={assessment_id}, control={control_id}, question={question_id}")
         question = ControlQuestion.get_by_id(question_id)
         if not question:
+            logger.error(f"Question not found: {question_id}")
             raise ValueError(f"Pregunta no encontrada: {question_id}")
         
         options = json.loads(question.options)

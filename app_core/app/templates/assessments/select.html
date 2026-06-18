@@ -3,55 +3,99 @@
 {% block title %}Seleccionar Evaluación Activa - Helios{% endblock %}
 
 {% block content %}
-<h1>Seleccionar Evaluación Activa</h1>
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Seleccionar Evaluación Activa</h1>
+            <p class="mt-1 text-sm text-gray-500">Seleccione una evaluación activa para filtrar automáticamente la información.</p>
+        </div>
+        <a href="/assessments/" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
+            <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Volver a evaluaciones
+        </a>
+    </div>
 
-<p>Seleccione una evaluación activa para que todo el sistema filtre automáticamente la información perteneciente a ella.</p>
+    {% if current_active %}
+    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div class="flex">
+            <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <div class="ml-3">
+                <p class="text-sm text-green-700">
+                    Evaluación actualmente activa: <span class="font-medium">{{ current_active.name }}</span>
+                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        {{ current_active.period }}
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
-{% if current_active %}
-<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
-    <strong>Evaluación actualmente activa:</strong> {{ current_active.name }}
-    <span style="background: #4caf50; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; margin-left: 0.5rem;">{{ current_active.period }}</span>
-</div>
-{% endif %}
-
-{% if assessments %}
-<table>
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Período</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for assessment in assessments %}
-        <tr>
-            <td>
-                {% if current_active and current_active.id == assessment.id %}
-                <strong style="color: #4caf50;">★ {{ assessment.name }}</strong>
-                {% else %}
-                {{ assessment.name }}
-                {% endif %}
-            </td>
-            <td>{{ assessment.description or '-' }}</td>
-            <td>{{ assessment.period }}</td>
-            <td>
-                {% if current_active and current_active.id == assessment.id %}
-                <span style="color: #4caf50;">Activa</span>
-                {% else %}
-                <a href="/assessments/{{ assessment.id }}/set-active">Activar</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No hay evaluaciones activas disponibles. <a href="/assessments/create">Crear una evaluación</a></p>
-{% endif %}
-
-<div style="margin-top: 1rem;">
-    <a href="/assessments/">Volver a Evaluaciones</a>
+    {% if assessments %}
+    <div class="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Período</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for assessment in assessments %}
+                    <tr class="hover:bg-gray-50 {% if current_active and current_active.id == assessment.id %}bg-green-50{% endif %}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                {% if current_active and current_active.id == assessment.id %}
+                                <svg class="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-sm font-medium text-green-700">{{ assessment.name }}</span>
+                                {% else %}
+                                <span class="text-sm font-medium text-gray-900">{{ assessment.name }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-500">{{ assessment.description or '-' }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ assessment.period }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            {% if current_active and current_active.id == assessment.id %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Activa
+                            </span>
+                            {% else %}
+                            <a href="/assessments/{{ assessment.id }}/set-active" class="text-blue-600 hover:text-blue-900 font-medium">Activar</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-12 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No hay evaluaciones disponibles</h3>
+        <p class="mt-2 text-sm text-gray-500">Crea una evaluación para comenzar.</p>
+        <div class="mt-6">
+            <a href="/assessments/create" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                Crear una evaluación
+            </a>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

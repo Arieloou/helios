@@ -3,29 +3,72 @@
 {% block title %}Editar Mapeo - Helios{% endblock %}
 
 {% block content %}
-<h1>Editar Mapeo de Riesgo</h1>
+<div class="max-w-3xl mx-auto">
+    <div class="mb-6">
+        <a href="/risk/" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
+            <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Volver a mapeos
+        </a>
+    </div>
 
-<form method="POST">
-    <fieldset style="border: 1px solid #ddd; padding: 1rem; margin-top: 1rem;">
-        <legend style="font-weight: bold;">Variables de Riesgo</legend>
-        
-        <p><strong>Activo:</strong> {{ mapping.asset_name }} (V_total: {{ mapping.asset_v_total }})</p>
-        
-        <label for="probability">Probabilidad (P) * - Escala 1-5</label>
-        <input type="range" id="probability" name="probability" min="1" max="5" value="{{ mapping.probability }}" oninput="this.nextElementSibling.value = this.value">
-        <output>{{ mapping.probability }}</output>
-        <span style="font-size: 0.8rem; color: #666;">(1=Raro, 5=Muy probable)</span>
+    <div class="bg-white shadow-sm border border-gray-200 rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-900">Editar Mapeo de Riesgo</h1>
+        </div>
 
-        <label for="degradation">Degradación (D) * - Porcentaje 0-1</label>
-        <input type="range" id="degradation" name="degradation" min="0" max="1" step="0.1" value="{{ mapping.degradation }}" oninput="this.nextElementSibling.value = this.value">
-        <output>{{ mapping.degradation }}</output>
-        <span style="font-size: 0.8rem; color: #666;">(0=Sin impacto, 1=Total)</span>
-    </fieldset>
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <p class="text-sm"><span class="font-medium text-gray-700">Activo:</span> {{ mapping.asset_name }} <span class="text-gray-500">(V_total: {{ mapping.asset_v_total }})</span></p>
+        </div>
 
-    <p><strong>Impacto calculado:</strong> {{ mapping.impact or '-' }}</p>
-    <p><strong>Riesgo Inherente (RI):</strong> {{ mapping.risk_inherent or '-' }}</p>
+        <form method="POST" class="px-6 py-6 space-y-6">
+            <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Variables de Riesgo</h3>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <label for="probability" class="block text-sm font-medium text-gray-700 w-40">Probabilidad (P) *</label>
+                        <div class="flex items-center space-x-3 flex-1">
+                            <input type="range" id="probability" name="probability" min="1" max="5" value="{{ mapping.probability }}" 
+                                oninput="document.getElementById('prob-output').textContent = this.value"
+                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <output id="prob-output" class="w-8 text-center font-medium text-gray-900">{{ mapping.probability }}</output>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 -mt-2">Escala 1-5 (1=Raro, 5=Muy probable)</p>
 
-    <button type="submit">Guardar Cambios</button>
-    <a href="/risk/" style="margin-left: 1rem;">Cancelar</a>
-</form>
+                    <div class="flex items-center justify-between">
+                        <label for="degradation" class="block text-sm font-medium text-gray-700 w-40">Degradación (D) *</label>
+                        <div class="flex items-center space-x-3 flex-1">
+                            <input type="range" id="degradation" name="degradation" min="0" max="1" step="0.1" value="{{ mapping.degradation }}" 
+                                oninput="document.getElementById('deg-output').textContent = this.value"
+                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <output id="deg-output" class="w-8 text-center font-medium text-gray-900">{{ mapping.degradation }}</output>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 -mt-2">Porcentaje 0-1 (0=Sin impacto, 1=Total)</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                    <p class="text-sm text-blue-800"><span class="font-medium">Impacto calculado:</span> {{ mapping.impact or '-' }}</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4 border border-purple-100">
+                    <p class="text-sm text-purple-800"><span class="font-medium">Riesgo Inherente (RI):</span> {{ mapping.risk_inherent or '-' }}</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <a href="/risk/" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    Cancelar
+                </a>
+                <button type="submit" class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
