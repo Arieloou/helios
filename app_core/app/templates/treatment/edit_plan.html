@@ -6,6 +6,7 @@
 <h1>Editar Plan de Tratamiento</h1>
 
 <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label for="strategy">Estrategia:</label>
     <select name="strategy" id="strategy">
         <option value="mitigate" {% if plan.strategy == 'mitigate' %}selected{% endif %}>Mitigar</option>

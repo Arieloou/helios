@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,23 +21,25 @@
     </style>
     {% block css %}{% endblock %}
 </head>
+
 <body class="bg-helios-bg text-helios-text min-h-screen flex flex-col">
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-helios-primary focus:text-white focus:rounded-md">
+    <a href="#main-content"
+        class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-helios-primary focus:text-white focus:rounded-md">
         Saltar al contenido principal
     </a>
-    
+
     <header class="bg-helios-surface border-b border-helios-border sticky top-0 z-50" role="banner">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="navigation" aria-label="Navegación principal">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
                     <a href="/" class="text-xl font-bold text-helios-primary flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                         </svg>
                         Helios
                     </a>
                 </div>
-                
+
                 <div class="hidden md:flex items-center space-x-1">
                     <a href="/" class="nav-link">Inicio</a>
                     <a href="/assessments/" class="nav-link">Evaluaciones</a>
@@ -46,23 +49,27 @@
                     <a href="/iso/" class="nav-link">Auditoría ISO</a>
                     <a href="/dashboard/" class="nav-link">Dashboard</a>
                     {% if session.get("user") and session.get("user").role == "admin" %}
-                        <a href="/users/" class="nav-link">Usuarios</a>
+                    <a href="/users/" class="nav-link">Usuarios</a>
                     {% endif %}
                 </div>
 
                 <div class="hidden md:flex items-center space-x-3">
                     {% if session.get("user") %}
-                        <span class="text-sm text-helios-text-muted">{{ session.get("user").name }}</span>
-                        <a href="/auth/logout" class="btn btn-secondary btn-sm">Cerrar sesión</a>
+                    <span class="text-sm text-helios-text-muted">{{ session.get("user").name }}</span>
+                    <a href="/auth/logout" class="btn btn-secondary btn-sm">Cerrar sesión</a>
                     {% else %}
-                        <a href="/auth/login" class="btn btn-primary btn-sm">Iniciar sesión</a>
+                    <a href="/auth/login" class="btn btn-primary btn-sm">Iniciar sesión</a>
                     {% endif %}
                 </div>
 
                 <div class="md:hidden">
-                    <button id="mobile-menu-btn" class="p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-helios-primary" aria-label="Abrir menú">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    <button id="mobile-menu-btn"
+                        class="p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-helios-primary"
+                        aria-label="Abrir menú">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
                 </div>
@@ -79,13 +86,13 @@
                 <a href="/iso/" class="mobile-nav-link">Auditoría ISO</a>
                 <a href="/dashboard/" class="mobile-nav-link">Dashboard</a>
                 {% if session.get("user") and session.get("user").role == "admin" %}
-                    <a href="/users/" class="mobile-nav-link">Usuarios</a>
+                <a href="/users/" class="mobile-nav-link">Usuarios</a>
                 {% endif %}
                 <div class="pt-2 border-t border-helios-border">
                     {% if session.get("user") %}
-                        <a href="/auth/logout" class="btn btn-secondary w-full text-center">Cerrar sesión</a>
+                    <a href="/auth/logout" class="btn btn-secondary w-full text-center">Cerrar sesión</a>
                     {% else %}
-                        <a href="/auth/login" class="btn btn-primary w-full text-center">Iniciar sesión</a>
+                    <a href="/auth/login" class="btn btn-primary w-full text-center">Iniciar sesión</a>
                     {% endif %}
                 </div>
             </div>
@@ -94,13 +101,13 @@
 
     <main id="main-content" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" role="main">
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="mb-6 space-y-2">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+        {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% endwith %}
 
         {% block content %}{% endblock %}
@@ -115,8 +122,9 @@
     </footer>
 
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2" aria-live="polite"></div>
-    
-    <div id="loading-overlay" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
+
+    <div id="loading-overlay"
+        class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
         <div class="bg-white rounded-lg p-6 shadow-xl flex items-center gap-4">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-helios-primary"></div>
             <span class="text-gray-700 font-medium">Cargando...</span>
@@ -126,7 +134,7 @@
     <script>
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
-        
+
         if (mobileMenuBtn && mobileMenu) {
             mobileMenuBtn.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
@@ -136,21 +144,21 @@
         function showToast(message, type = 'info', duration = 5000) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            
+
             const colors = {
                 success: 'bg-green-500',
                 error: 'bg-red-500',
                 warning: 'bg-yellow-500',
                 info: 'bg-blue-500'
             };
-            
+
             const icons = {
                 success: '<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>',
                 error: '<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>',
                 warning: '<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>',
                 info: '<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>'
             };
-            
+
             toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white ${colors[type]} transform transition-all duration-300 translate-x-full opacity-0`;
             toast.innerHTML = `
                 ${icons[type]}
@@ -159,13 +167,13 @@
                     <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                 </button>
             `;
-            
+
             container.appendChild(toast);
-            
+
             setTimeout(() => {
                 toast.classList.remove('translate-x-full', 'opacity-0');
             }, 10);
-            
+
             setTimeout(() => {
                 toast.classList.add('translate-x-full', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
@@ -181,7 +189,7 @@
         }
 
         document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function() {
+            form.addEventListener('submit', function () {
                 const submitBtn = this.querySelector('button[type="submit"]');
                 if (submitBtn) {
                     submitBtn.disabled = true;
@@ -193,22 +201,22 @@
         });
 
         document.querySelectorAll('a[data-confirm]').forEach(link => {
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function (e) {
                 if (!confirm(this.dataset.confirm)) {
                     e.preventDefault();
                 }
             });
         });
 
-        window.updateCharCount = function(textarea, counterId, maxLength) {
+        window.updateCharCount = function (textarea, counterId, maxLength) {
             const counter = document.getElementById(counterId);
             if (counter) {
                 counter.textContent = textarea.value.length;
             }
         };
 
-        document.querySelectorAll('input[required], textarea[required], select[required]').forEach(function(field) {
-            field.addEventListener('blur', function() {
+        document.querySelectorAll('input[required], textarea[required], select[required]').forEach(function (field) {
+            field.addEventListener('blur', function () {
                 const errorMsg = this.parentElement.querySelector('.error-message');
                 if (this.value.trim() === '') {
                     this.classList.add('border-red-500');
@@ -232,55 +240,55 @@
         .nav-link {
             @apply px-3 py-2 rounded-md text-sm font-medium text-helios-text-muted hover:text-helios-primary hover:bg-gray-50 transition-colors duration-200;
         }
-        
+
         .mobile-nav-link {
             @apply block px-3 py-3 rounded-md text-base font-medium text-helios-text-muted hover:text-helios-primary hover:bg-gray-50 transition-colors;
         }
-        
+
         .btn {
             @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
         }
-        
+
         .btn-primary {
             @apply bg-helios-primary text-white hover:bg-helios-primary-dark focus:ring-helios-primary;
         }
-        
+
         .btn-secondary {
             @apply bg-white text-helios-text border-helios-border hover:bg-gray-50 focus:ring-helios-secondary;
         }
-        
+
         .btn-danger {
             @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
         }
-        
+
         .btn-sm {
             @apply px-3 py-1.5 text-xs;
         }
-        
+
         .btn-lg {
             @apply px-6 py-3 text-base;
         }
-        
+
         .btn:disabled {
             @apply opacity-50 cursor-not-allowed;
         }
-        
+
         .alert {
             @apply px-4 py-3 rounded-md border;
         }
-        
+
         .alert-success {
             @apply bg-green-50 text-green-800 border-green-200;
         }
-        
+
         .alert-error {
             @apply bg-red-50 text-red-800 border-red-200;
         }
-        
+
         .alert-warning {
             @apply bg-yellow-50 text-yellow-800 border-yellow-200;
         }
-        
+
         .alert-info {
             @apply bg-blue-50 text-blue-800 border-blue-200;
         }
@@ -302,9 +310,11 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
-        
+
         .animate-spin {
             animation: spin 1s linear infinite;
         }
@@ -317,11 +327,13 @@
             .btn {
                 @apply min-h-11 px-5 py-2.5;
             }
-            
-            input, select, textarea {
+
+            input,
+            select,
+            textarea {
                 @apply text-base;
             }
-            
+
             table {
                 @apply text-sm;
             }
@@ -330,4 +342,5 @@
 
     {% block scripts %}{% endblock %}
 </body>
+
 </html>

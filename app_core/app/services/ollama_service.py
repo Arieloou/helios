@@ -1,3 +1,4 @@
+from app import settings
 from typing import Dict, List, Optional
 import requests
 
@@ -8,8 +9,6 @@ from app.services.assessment_service import AssessmentService
 
 
 class OllamaService:
-    OLLAMA_URL = "http://localhost:11434/api/generate"
-    DEFAULT_MODEL = "llama2"
 
     @classmethod
     def is_available(cls) -> bool:
@@ -67,8 +66,8 @@ class OllamaService:
 
         try:
             response = requests.post(
-                cls.OLLAMA_URL,
-                json={"model": cls.DEFAULT_MODEL, "prompt": prompt, "stream": False},
+                settings.OLLAMA_URL,
+                json={"model": settings.DEFAULT_MODEL, "prompt": prompt, "stream": False},
                 timeout=60,
             )
 

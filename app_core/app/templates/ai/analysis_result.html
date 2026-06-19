@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Análisis IA - Helios{% endblock %}
 
@@ -13,7 +13,8 @@
     <h3>Datos del Activo</h3>
     <p><strong>Tipo:</strong> {{ asset.asset_type }}</p>
     <p><strong>Descripción:</strong> {{ asset.description or '-' }}</p>
-    <p><strong>Valor CID:</strong> C={{ asset.confidentiality }}, I={{ asset.integrity }}, D={{ asset.availability }}</p>
+    <p><strong>Valor CID:</strong> C={{ asset.confidentiality }}, I={{ asset.integrity }}, D={{ asset.availability }}
+    </p>
     <p><strong>V_total:</strong> {{ asset.v_total }}</p>
     {% if asset.risk_inherent %}
     <p><strong>Riesgo Inherente:</strong> {{ asset.risk_inherent }}</p>
@@ -35,9 +36,9 @@
     <h3>Observaciones de Coherencia</h3>
     {% if analysis.observations %}
     <ul>
-    {% for obs in analysis.observations %}
+        {% for obs in analysis.observations %}
         <li>{{ obs }}</li>
-    {% endfor %}
+        {% endfor %}
     </ul>
     {% else %}
     <p>No se pudieron extraer observaciones.</p>
@@ -48,9 +49,9 @@
     <h3>Controles ISO 27002 Recomendados</h3>
     {% if analysis.recommendations %}
     <ul>
-    {% for rec in analysis.recommendations %}
+        {% for rec in analysis.recommendations %}
         <li>{{ rec }}</li>
-    {% endfor %}
+        {% endfor %}
     </ul>
     {% else %}
     <p>No se pudieron extraer recomendaciones.</p>
@@ -60,13 +61,15 @@
 {% if analysis.raw_response %}
 <details style="margin-top: 1rem;">
     <summary>Ver respuesta completa de IA</summary>
-    <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto;">{{ analysis.raw_response }}</pre>
+    <pre
+        style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto;">{{ analysis.raw_response }}</pre>
 </details>
 {% endif %}
 {% endif %}
 
 <div style="margin-top: 1rem;">
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit">Analizar con IA</button>
     </form>
     <a href="/assets/"><button style="margin-left: 1rem;">Volver a Activos</button></a>

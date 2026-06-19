@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Reporte de Madurez - Helios{% endblock %}
 
@@ -10,13 +10,16 @@
             {% if active_assessment %}
             <p class="mt-1 text-sm text-green-600 flex items-center">
                 <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd" />
                 </svg>
                 Evaluación activa: {{ active_assessment.name }}
             </p>
             {% endif %}
         </div>
-        <a href="/iso/" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+        <a href="/iso/"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
             Volver al Cuestionario
         </a>
     </div>
@@ -24,7 +27,8 @@
     <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
         <div class="text-center">
             <p class="text-sm text-gray-500 uppercase tracking-wide">Madurez General</p>
-            <div class="mt-2 inline-flex items-center px-6 py-3 rounded-full text-white text-3xl font-bold {% if report.overall_maturity >= 0.8 %}bg-green-500{% elif report.overall_maturity >= 0.5 %}bg-yellow-500{% else %}bg-red-500{% endif %}">
+            <div
+                class="mt-2 inline-flex items-center px-6 py-3 rounded-full text-white text-3xl font-bold {% if report.overall_maturity >= 0.8 %}bg-green-500{% elif report.overall_maturity >= 0.5 %}bg-yellow-500{% else %}bg-red-500{% endif %}">
                 {{ report.overall_maturity_display }}%
             </div>
         </div>
@@ -38,18 +42,26 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dominio</th>
-                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Controles</th>
-                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Madurez</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Dominio</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Controles</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Madurez</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for domain, data in domain_maturity.items() %}
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ domain }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">{{ data.controls_count }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">{{ data.controls_count
+                            }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white {% if data.maturity >= 0.8 %}bg-green-500{% elif data.maturity >= 0.5 %}bg-yellow-500{% else %}bg-red-500{% endif %}">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white {% if data.maturity >= 0.8 %}bg-green-500{% elif data.maturity >= 0.5 %}bg-yellow-500{% else %}bg-red-500{% endif %}">
                                 {{ data.maturity_display }}%
                             </span>
                         </td>
@@ -68,20 +80,30 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Control</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dominio</th>
-                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Madurez</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Control</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            T�tulo</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Dominio</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Madurez</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for ctrl in report.controls %}
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{{ ctrl.control_id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{{ ctrl.control_id }}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ctrl.title }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ctrl.domain }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white {% if ctrl.maturity >= 0.8 %}bg-green-500{% elif ctrl.maturity >= 0.5 %}bg-yellow-500{% else %}bg-red-500{% endif %}">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white {% if ctrl.maturity >= 0.8 %}bg-green-500{% elif ctrl.maturity >= 0.5 %}bg-yellow-500{% else %}bg-red-500{% endif %}">
                                 {{ ctrl.maturity_display }}%
                             </span>
                         </td>

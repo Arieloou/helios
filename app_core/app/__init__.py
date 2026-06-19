@@ -3,7 +3,6 @@ Application Factory de Helios app_core.
 Configura la aplicación Flask, inicializa extensiones y
 registra los blueprints.
 """
-
 import logging
 
 from flask import Flask

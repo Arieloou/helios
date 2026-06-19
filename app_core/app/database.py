@@ -1,4 +1,4 @@
-import os
+from sqlalchemy.exc import OperationalError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
@@ -8,11 +8,11 @@ from .models.base import db
 
 
 def get_database_url():
-    db_host = os.getenv("DB_HOST", settings.DB_HOST)
-    db_port = os.getenv("DB_PORT", settings.DB_PORT)
-    db_name = os.getenv("DB_NAME", settings.DB_NAME)
-    db_user = os.getenv("DB_USER", settings.DB_USER)
-    db_password = os.getenv("DB_PASSWORD", settings.DB_PASSWORD)
+    db_host = settings.DB_HOST
+    db_port = settings.DB_PORT
+    db_name = settings.DB_NAME
+    db_user = settings.DB_USER
+    db_password = settings.DB_PASSWORD
 
     return f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
@@ -58,3 +58,17 @@ def init_db(app):
     db.init_app(app)
     with app.app_context():
         db.create_all()
+
+def test_db_connection():
+    """Test database connection by running a simple query."""
+    try:
+        # Try to connect and run a simple query
+        db.session.execute(db.select(1))
+        print("Database connection successful.")
+        return True
+    except OperationalError as e:
+        print(f"Database connection failed: {e}")
+        return False
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return False

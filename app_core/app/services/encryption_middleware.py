@@ -14,8 +14,8 @@ from sqlalchemy import event
 
 logger = logging.getLogger(__name__)
 
-# Track already-decrypted instances to avoid double decryption
-_decrypted_instances = set()
+# Instance-level flag name to track decryption state
+_DECRYPTED_FLAG = "_encryption_middleware_decrypted"
 
 
 def _get_encryption_client():
@@ -60,37 +60,14 @@ def decrypt_field(value: str) -> str:
         return value
 
 
-def _encrypt_fields(mapper, connection, target):
-    """Before insert/update: encrypt all declared sensitive fields."""
-    encrypted_fields = getattr(target.__class__, "__encrypted_fields__", [])
-    if not encrypted_fields:
-        return
-
-    for field_name in encrypted_fields:
-        value = getattr(target, field_name, None)
-        if value:
-            encrypted_value = encrypt_field(value)
-            setattr(target, field_name, encrypted_value)
-
-    # Update lookup hash columns if they exist (e.g., username_hash)
-    hash_fields = getattr(target.__class__, "__hash_fields__", {})
-    for source_field, hash_column in hash_fields.items():
-        # We need the original plaintext to compute the hash
-        # Since we just encrypted, we need to decrypt to get it back
-        encrypted_val = getattr(target, source_field, None)
-        if encrypted_val:
-            plaintext = decrypt_field(encrypted_val)
-            setattr(target, hash_column, compute_lookup_hash(plaintext))
-
-    # Remove from decrypted tracking since values are now encrypted
-    instance_key = id(target)
-    _decrypted_instances.discard(instance_key)
-
-
 def _decrypt_fields(target, context):
-    """After load: decrypt all declared sensitive fields."""
-    instance_key = id(target)
-    if instance_key in _decrypted_instances:
+    """
+    After load: decrypt all declared sensitive fields.
+    Uses a per-instance flag instead of a global set to avoid
+    Python id() memory address reuse bugs.
+    """
+    # Check per-instance flag to avoid double decryption
+    if getattr(target, _DECRYPTED_FLAG, False):
         return
 
     encrypted_fields = getattr(target.__class__, "__encrypted_fields__", [])
@@ -104,7 +81,8 @@ def _decrypt_fields(target, context):
             # Use __dict__ to bypass SQLAlchemy change tracking
             target.__dict__[field_name] = decrypted_value
 
-    _decrypted_instances.add(instance_key)
+    # Mark this specific instance as decrypted
+    target.__dict__[_DECRYPTED_FLAG] = True
 
 
 def _on_before_insert_or_update(mapper, connection, target):
@@ -113,26 +91,46 @@ def _on_before_insert_or_update(mapper, connection, target):
     if not encrypted_fields:
         return
 
-    # Store original plaintext values for hash computation
+    # Store original plaintext values for hash computation and post-write restore
     plaintext_values = {}
-    hash_fields = getattr(target.__class__, "__hash_fields__", {})
-    for source_field in hash_fields:
-        plaintext_values[source_field] = getattr(target, source_field, None)
-
-    # Encrypt each field
     for field_name in encrypted_fields:
-        value = getattr(target, field_name, None)
+        plaintext_values[field_name] = getattr(target, field_name, None)
+
+    # Encrypt each field for DB storage
+    for field_name in encrypted_fields:
+        value = plaintext_values[field_name]
         if value:
             setattr(target, field_name, encrypt_field(value))
 
     # Compute lookup hashes from original plaintext
+    hash_fields = getattr(target.__class__, "__hash_fields__", {})
     for source_field, hash_column in hash_fields.items():
         plaintext = plaintext_values.get(source_field)
         if plaintext:
             setattr(target, hash_column, compute_lookup_hash(plaintext))
 
-    # Mark as not decrypted since we just encrypted
-    _decrypted_instances.discard(id(target))
+    # Store plaintext for post-flush restore (avoid encrypted values in memory)
+    target.__dict__["_plaintext_backup"] = plaintext_values
+    # Clear decrypted flag since values are now encrypted
+    target.__dict__[_DECRYPTED_FLAG] = False
+
+
+def _on_after_insert_or_update(mapper, connection, target):
+    """
+    After insert/update: restore plaintext values to the in-memory object.
+    Without this, the object would hold encrypted values after a commit,
+    causing templates to render ciphertext.
+    """
+    plaintext_backup = target.__dict__.pop("_plaintext_backup", None)
+    if not plaintext_backup:
+        return
+
+    for field_name, plaintext in plaintext_backup.items():
+        if plaintext:
+            target.__dict__[field_name] = plaintext
+
+    # Mark as decrypted since we restored plaintext
+    target.__dict__[_DECRYPTED_FLAG] = True
 
 
 def register_encryption_events(app, db):
@@ -148,18 +146,31 @@ def register_encryption_events(app, db):
             encrypted_fields = getattr(model_class, "__encrypted_fields__", None)
 
             if encrypted_fields:
-                # Register encrypt on insert
+                # Encrypt before writing to DB
                 event.listen(
                     model_class, "before_insert",
                     _on_before_insert_or_update
                 )
-                # Register encrypt on update
                 event.listen(
                     model_class, "before_update",
                     _on_before_insert_or_update
                 )
-                # Register decrypt on load
+                # Restore plaintext after writing to DB
+                event.listen(
+                    model_class, "after_insert",
+                    _on_after_insert_or_update
+                )
+                event.listen(
+                    model_class, "after_update",
+                    _on_after_insert_or_update
+                )
+                # Decrypt after loading from DB
                 event.listen(
                     model_class, "load",
                     _decrypt_fields
+                )
+
+                logger.info(
+                    f"Encryption events registered for {model_class.__name__} "
+                    f"on fields: {encrypted_fields}"
                 )

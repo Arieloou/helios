@@ -1,4 +1,4 @@
-﻿{% macro render_field(field, label_class='', input_class='') %}
+{% macro render_field(field, label_class='', input_class='') %}
 <div class="mb-4">
     {% if field.label %}
     <label for="{{ field.id }}" class="block text-sm font-medium text-gray-700 mb-1 {{ label_class }}">
@@ -141,7 +141,7 @@
     <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
             <p class="text-sm text-gray-700">
-                Página <span class="font-medium">{{ page }}</span> de <span class="font-medium">{{ total_pages }}</span>
+                P�gina <span class="font-medium">{{ page }}</span> de <span class="font-medium">{{ total_pages }}</span>
             </p>
         </div>
         <div>

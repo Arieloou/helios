@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Control {{ control.control_id }} - Helios{% endblock %}
 
@@ -30,6 +30,7 @@
         </div>
 
         <form method="POST" class="px-6 py-6 space-y-6">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             {% for question in questions %}
             <div class="border border-gray-200 rounded-lg p-4">
                 <h3 class="text-sm font-medium text-gray-900 mb-4">{{ question.question_text }}</h3>
