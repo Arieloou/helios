@@ -1,0 +1,145 @@
+<aside id="sidebar" class="fixed left-0 top-0 h-screen bg-helios-surface border-r border-helios-border transition-all duration-300 z-40 flex flex-col" style="width: 4rem;" aria-label="Navegación lateral">
+    <div class="flex items-center justify-between h-16 px-4 border-b border-helios-border">
+        <a href="/" class="flex items-center gap-2 text-lg font-bold text-helios-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+            <span class="sidebar-text hidden">Helios</span>
+        </a>
+        <button id="sidebar-toggle" class="p-1.5 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-helios-primary" aria-label="Colapsar sidebar">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+        </button>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto py-4" aria-label="Navegación del sidebar">
+        <ul class="space-y-1 px-3">
+            <li>
+                <a href="/dashboard/" class="sidebar-link" title="Dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                    <span class="sidebar-text hidden">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/assessments/" class="sidebar-link" title="Evaluaciones">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <span class="sidebar-text hidden">Evaluaciones</span>
+                </a>
+            </li>
+            <li>
+                <a href="/assets/" class="sidebar-link" title="Activos">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    <span class="sidebar-text hidden">Activos</span>
+                </a>
+            </li>
+            <li>
+                <a href="/risk/" class="sidebar-link" title="Riesgos">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span class="sidebar-text hidden">Riesgos</span>
+                </a>
+            </li>
+            <li>
+                <a href="/treatment/risks" class="sidebar-link" title="Tratamiento">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span class="sidebar-text hidden">Tratamiento</span>
+                </a>
+            </li>
+            <li>
+                <a href="/iso/" class="sidebar-link" title="Auditoría ISO">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="sidebar-text hidden">ISO Audit</span>
+                </a>
+            </li>
+            <li>
+                <a href="/dashboard/" class="sidebar-link" title="Dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span class="sidebar-text hidden">Dashboard</span>
+                </a>
+            </li>
+            {% if current_user and current_user.role == "admin" %}
+            <li>
+                <a href="/users/" class="sidebar-link" title="Usuarios">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <span class="sidebar-text hidden">Usuarios</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</aside>
+
+<script>
+    (function() {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        const sidebarTexts = document.querySelectorAll('.sidebar-text');
+        const toggleIcon = toggleBtn.querySelector('svg');
+        
+        let isExpanded = false;
+
+        function updateSidebar() {
+            if (isExpanded) {
+                sidebar.style.width = '16rem';
+                sidebarTexts.forEach(el => el.classList.remove('hidden'));
+                toggleIcon.style.transform = 'rotate(0deg)';
+            } else {
+                sidebar.style.width = '4rem';
+                sidebarTexts.forEach(el => el.classList.add('hidden'));
+                toggleIcon.style.transform = 'rotate(180deg)';
+            }
+            localStorage.setItem('sidebar_expanded', isExpanded);
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            isExpanded = !isExpanded;
+            updateSidebar();
+        });
+
+        const savedState = localStorage.getItem('sidebar_expanded');
+        if (savedState !== null) {
+            isExpanded = savedState === 'true';
+        }
+        updateSidebar();
+    })();
+</script>
+
+<style>
+    .sidebar-link {
+        @apply flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-helios-text-muted hover:text-helios-primary hover:bg-gray-50 transition-colors duration-200;
+    }
+    
+    .sidebar-link.router-link-active {
+        @apply bg-helios-primary bg-opacity-10 text-helios-primary;
+    }
+
+    .sidebar-text {
+        @apply whitespace-nowrap transition-opacity duration-200;
+    }
+
+    @media (max-width: 768px) {
+        #sidebar {
+            transform: translateX(-100%);
+        }
+        
+        #sidebar.mobile-open {
+            transform: translateX(0);
+        }
+    }
+</style>

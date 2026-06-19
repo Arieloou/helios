@@ -6,7 +6,9 @@
 <h1>Gestión de Usuarios</h1>
 
 <div style="margin-bottom: 1rem;">
+    {% if current_user and current_user.role.value == 'admin' %}
     <a href="/users/create"><button>+ Nuevo Usuario</button></a>
+    {% endif %}
     <a href="/auth/dashboard" style="margin-left: 1rem;">Volver al Dashboard</a>
 </div>
 
@@ -45,6 +47,7 @@
             <td style="text-align: center;">{{ user.failed_attempts }}</td>
             <td>{{ user.created_at[:10] if user.created_at else '-' }}</td>
             <td>
+                {% if current_user and current_user.role.value == 'admin' %}
                 <a href="/users/{{ user.id }}/edit">Editar</a>
                 {% if user.is_active %}
                 <a href="/users/{{ user.id }}/deactivate" onclick="return confirm('¿Desactivar este usuario?')">Desactivar</a>
@@ -52,6 +55,9 @@
                 <a href="/users/{{ user.id }}/activate" onclick="return confirm('¿Activar este usuario?')">Activar</a>
                 {% endif %}
                 <a href="/users/{{ user.id }}/delete" onclick="return confirm('¿Eliminar este usuario? Esta acción no se puede deshacer.')">Eliminar</a>
+                {% else %}
+                -
+                {% endif %}
             </td>
         </tr>
         {% endfor %}

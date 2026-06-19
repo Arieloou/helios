@@ -10,3 +10,4 @@ from .risk_models import Threat, Vulnerability, AssetThreatMapping
 from .iso_models import ISOControl, ControlQuestion, ControlResponse, ControlMaturity
 from .treatment_models import TreatmentPlan, TreatmentTask
 from .user import User, UserRole
+from .audit_log import AuditLog, AuditAction

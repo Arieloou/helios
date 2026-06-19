@@ -27,32 +27,28 @@ def analyze(asset_id: str):
     active_assessment = AssessmentService.get_active()
 
     if request.method == "POST":
-        result = AIAnalysisService.analyze_asset_safe(asset_id)
-
-        if result.get("success"):
-            return render_template(
-                "ai/analysis_result.html",
-                asset=asset,
-                analysis=result,
-                active_assessment=active_assessment,
-            )
-        else:
-            flash(result.get("error", "Error al analizar"), "error")
-            return render_template(
-                "ai/analysis_result.html",
-                asset=asset,
-                analysis=result,
-                active_assessment=active_assessment,
-            )
+        return render_template(
+            "ai/loading.html",
+            asset=asset,
+        )
 
     result = AIAnalysisService.analyze_asset_safe(asset_id)
 
-    return render_template(
-        "ai/analysis_result.html",
-        asset=asset,
-        analysis=result,
-        active_assessment=active_assessment,
-    )
+    if result.get("success"):
+        return render_template(
+            "ai/analysis_result.html",
+            asset=asset,
+            analysis=result,
+            active_assessment=active_assessment,
+        )
+    else:
+        flash(result.get("error", "Error al analizar"), "error")
+        return render_template(
+            "ai/analysis_result.html",
+            asset=asset,
+            analysis=result,
+            active_assessment=active_assessment,
+        )
 
 
 @ai_bp.route("/check")

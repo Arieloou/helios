@@ -129,6 +129,7 @@ def delete(user_id: str):
 
 
 @user_bp.route("/<user_id>/change-password", methods=["GET", "POST"])
+@admin_required
 def change_password(user_id: str):
     current_user = SessionService.get_current_user()
     if not current_user:

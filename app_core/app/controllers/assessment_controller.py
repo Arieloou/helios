@@ -2,11 +2,15 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.services.assessment_service import AssessmentService
 from app.services.session_service import SessionService
+from app.services.asset_service import AssetService
+from app.services.rbac import login_required, admin_required
+from app.models.risk_models import AssetThreatMapping
 
 assessment_bp = Blueprint("assessment", __name__, url_prefix="/assessments")
 
 
 @assessment_bp.route("/")
+@login_required
 def index():
     assessments = AssessmentService.list_all()
     active_assessment = AssessmentService.get_active()
@@ -17,7 +21,27 @@ def index():
     )
 
 
+@assessment_bp.route("/<assessment_id>")
+@login_required
+def detail(assessment_id: str):
+    assessment = AssessmentService.get_by_id(assessment_id)
+    if not assessment:
+        flash("Evaluación no encontrada.", "error")
+        return redirect(url_for("assessment.index"))
+
+    assets = AssetService.list_by_assessment(assessment_id)
+    risks = AssetThreatMapping.get_by_assessment(assessment_id)
+
+    return render_template(
+        "assessments/detail.html",
+        assessment=assessment,
+        assets=assets,
+        risks=risks,
+    )
+
+
 @assessment_bp.route("/create", methods=["GET", "POST"])
+@admin_required
 def create():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
@@ -92,6 +116,7 @@ def edit(assessment_id: str):
 
 
 @assessment_bp.route("/<assessment_id>/delete")
+@admin_required
 def delete(assessment_id: str):
     try:
         AssessmentService.delete(assessment_id)
