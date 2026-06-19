@@ -163,8 +163,3 @@ def register_encryption_events(app, db):
                     model_class, "load",
                     _decrypt_fields
                 )
-
-                logger.info(
-                    f"Encryption events registered for {model_class.__name__} "
-                    f"on fields: {encrypted_fields}"
-                )

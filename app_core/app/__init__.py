@@ -51,14 +51,36 @@ def _init_extensions(app: Flask) -> None:
     from flask_migrate import Migrate
     from .services.encryption_middleware import register_encryption_events
 
-    encryption_ext.init_app(app)
-    db.init_app(app)
-    migrate = Migrate(app, db)
+    # Encryption middleware configuration
+    try:
+        encryption_ext.init_app(app)
+        app.logger.info("Encryption middleware initialized")
+    except Exception as e:
+        app.logger.error(f"Failed to initialize encryption middleware: {e}")
+    
+    # Database configuration
+    try:
+        db.init_app(app)
+        app.logger.info("Database initialized")
+    except Exception as e:
+        app.logger.error(f"Failed to initialize database: {e}")
+    
+    # Migrations configuration
+    try:
+        migrate = Migrate(app, db)
+        migrate.init_app(app, db, compare_type=True)
+        app.logger.info("Migrations initialized")
+    except Exception as e:
+        app.logger.error(f"Failed to initialize migrations: {e}")
 
     # Register encrypt/decrypt event listeners for models with __encrypted_fields__
-    register_encryption_events(app, db)
-
-    app.logger.info("Database, migrations, and encryption middleware initialized")
+    try:
+        register_encryption_events(app, db)
+        app.logger.info("Encryption events middleware registered")
+    except Exception as e:
+        app.logger.error(f"Failed to register encryption events middleware: {e}")
+    
+    app.logger.info("All extensions initialized")
 
 
 def _register_blueprints(app: Flask) -> None:
@@ -136,4 +158,4 @@ def _register_root_redirect(app: Flask):
     @app.route("/")
     def index():
         app.logger.debug("Redirecting root to auth.login")
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("auth.dashboard"))
