@@ -4,6 +4,7 @@ from flask import session
 from app.services.asset_service import AssetService
 from app.services.assessment_service import AssessmentService
 from app.services.import_service import ImportService
+from app.services.rbac import login_required
 
 asset_bp = Blueprint("assets", __name__, url_prefix="/assets")
 
@@ -29,8 +30,12 @@ def index():
 
 
 @asset_bp.route("/create", methods=["GET", "POST"])
+@login_required
 def create():
     active_assessment = AssessmentService.get_active()
+    if not active_assessment:
+        flash("Debe crear una evaluación antes de gestionar activos.", "warning")
+        return redirect(url_for("assessments.create"))
 
     if request.method == "POST":
         name = request.form.get("name", "").strip()
@@ -129,8 +134,12 @@ def delete(asset_id: str):
 
 
 @asset_bp.route("/import", methods=["GET", "POST"])
+@login_required
 def import_assets():
     active_assessment = AssessmentService.get_active()
+    if not active_assessment:
+        flash("Debe crear una evaluación antes de gestionar activos.", "warning")
+        return redirect(url_for("assessments.create"))
 
     if request.method == "POST":
         if "file" not in request.files:

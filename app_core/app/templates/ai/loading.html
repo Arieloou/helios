@@ -3,17 +3,32 @@
 {% block title %}Analizando - Helios{% endblock %}
 
 {% block content %}
-<h1>Analizando activo con IA...</h1>
-
-<div style="text-align: center; padding: 2rem;">
-    <div style="font-size: 2rem; margin-bottom: 1rem;">?</div>
-    <p>El modelo de IA local est√° analizando el activo. Esto puede tomar unos segundos...</p>
-    <p style="color: #666; font-size: 0.9rem;">Aseg√∫rese de que Ollama est√° ejecut√°ndose</p>
+<div style="text-align: center; padding: 3rem;">
+    <div class="spinner"></div>
+    <h2>Analizando <strong>{{ asset.name }}</strong>...</h2>
+    <p style="color: #666; font-size: 1.1rem;">El modelo de IA local est· analizando el activo. Esto puede tomar unos segundos...</p>
+    <p style="color: #888; font-size: 0.85rem;">Aseg˙rese de que Ollama est· ejecut·ndose</p>
 </div>
 
+<style>
+.spinner {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 2rem;
+    border: 4px solid #e0e0e0;
+    border-top: 4px solid #4a90d9;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
 <script>
-    setTimeout(function () {
-        location.reload();
-    }, 5000);
+setTimeout(function() {
+    window.location.href = "{{ url_for('ai.analyze', asset_id=asset.id) }}";
+}, 2000);
 </script>
 {% endblock %}

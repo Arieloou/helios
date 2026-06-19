@@ -28,139 +28,81 @@
         Saltar al contenido principal
     </a>
 
-    <header class="bg-helios-surface border-b border-helios-border sticky top-0 z-50" role="banner">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" role="navigation" aria-label="Navegación principal">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <a href="/" class="text-xl font-bold text-helios-primary flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                        </svg>
-                        Helios
-                    </a>
-                </div>
+    {% if current_user %}
+    {% include "layouts/_sidebar.html" %}
+    <div id="main-wrapper" class="ml-16 transition-all duration-300">
+        {% else %}
+        <div id="main-wrapper">
+            {% endif %}
 
-                <div class="hidden md:flex items-center space-x-1">
-                    <a href="/" class="nav-link">Inicio</a>
-                    <a href="/assessments/" class="nav-link">Evaluaciones</a>
-                    <a href="/assets/" class="nav-link">Activos</a>
-                    <a href="/risk/" class="nav-link">Riesgos</a>
-                    <a href="/treatment/risks" class="nav-link">Tratamiento</a>
-                    <a href="/iso/" class="nav-link">Auditoría ISO</a>
-                    <a href="/dashboard/" class="nav-link">Dashboard</a>
-                    {% if current_user and current_user.role == "admin" %}
-                    <a href="/users/" class="nav-link">Usuarios</a>
-                    {% endif %}
-                </div>
+            {% include 'layouts/_header.html' %}
 
-                <div class="hidden md:flex items-center space-x-3">
-                    {% if current_user %}
-                    <span class="text-sm text-helios-text-muted">{{ current_user.username }}</span>
-                    <a href="/auth/logout" class="btn btn-secondary btn-sm">Cerrar sesión</a>
-                    {% else %}
-                    <a href="/auth/login" class="btn btn-primary btn-sm">Iniciar sesión</a>
-                    {% endif %}
+            <main id="main-content" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" role="main">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
                 </div>
-
-                <div class="md:hidden">
-                    <button id="mobile-menu-btn"
-                        class="p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-helios-primary"
-                        aria-label="Abrir menú">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </nav>
-
-        <div id="mobile-menu" class="hidden md:hidden border-t border-helios-border bg-helios-surface">
-            <div class="px-4 py-3 space-y-2">
-                <a href="/" class="mobile-nav-link">Inicio</a>
-                <a href="/assessments/" class="mobile-nav-link">Evaluaciones</a>
-                <a href="/assets/" class="mobile-nav-link">Activos</a>
-                <a href="/risk/" class="mobile-nav-link">Riesgos</a>
-                <a href="/treatment/risks" class="mobile-nav-link">Tratamiento</a>
-                <a href="/iso/" class="mobile-nav-link">Auditoría ISO</a>
-                <a href="/dashboard/" class="mobile-nav-link">Dashboard</a>
-                {% if current_user and current_user.role == "admin" %}
-                <a href="/users/" class="mobile-nav-link">Usuarios</a>
                 {% endif %}
-                <div class="pt-2 border-t border-helios-border">
-                    {% if current_user %}
-                    <a href="/auth/logout" class="btn btn-secondary w-full text-center">Cerrar sesión</a>
-                    {% else %}
-                    <a href="/auth/login" class="btn btn-primary w-full text-center">Iniciar sesión</a>
-                    {% endif %}
-                </div>
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+
+        {% include 'layouts/_footer.html' %}
+
+        <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2" aria-live="polite"></div>
+
+        <div id="loading-overlay"
+            class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
+            <div class="bg-white rounded-lg p-6 shadow-xl flex items-center gap-4">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-helios-primary"></div>
+                <span class="text-gray-700 font-medium">Cargando...</span>
             </div>
         </div>
-    </header>
 
-    <main id="main-content" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" role="main">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <div class="mb-6 space-y-2">
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% endwith %}
+        <script>
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
 
-        {% block content %}{% endblock %}
-    </main>
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
 
-    <footer class="bg-helios-surface border-t border-helios-border py-6 mt-auto" role="contentinfo">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-sm text-helios-text-muted">
-                &copy; {{ range(2024, 2031)|random }} Helios - Gestión de Riesgos de Información
-            </p>
-        </div>
-    </footer>
+            const mainWrapper = document.getElementById('main-wrapper');
+            if (mainWrapper) {
+                const savedState = localStorage.getItem('sidebar_expanded');
+                if (savedState === 'true') {
+                    mainWrapper.classList.remove('ml-16');
+                    mainWrapper.style.marginLeft = '16rem';
+                }
+            }
 
-    <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2" aria-live="polite"></div>
+            function showToast(message, type = 'info', duration = 5000) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
 
-    <div id="loading-overlay"
-        class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
-        <div class="bg-white rounded-lg p-6 shadow-xl flex items-center gap-4">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-helios-primary"></div>
-            <span class="text-gray-700 font-medium">Cargando...</span>
-        </div>
-    </div>
+                const colors = {
+                    success: 'bg-green-500',
+                    error: 'bg-red-500',
+                    warning: 'bg-yellow-500',
+                    info: 'bg-blue-500'
+                };
 
-    <script>
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
+                const icons = {
+                    success: '<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>',
+                    error: '<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>',
+                    warning: '<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>',
+                    info: '<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>'
+                };
 
-        if (mobileMenuBtn && mobileMenu) {
-            mobileMenuBtn.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
-        }
-
-        function showToast(message, type = 'info', duration = 5000) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-
-            const colors = {
-                success: 'bg-green-500',
-                error: 'bg-red-500',
-                warning: 'bg-yellow-500',
-                info: 'bg-blue-500'
-            };
-
-            const icons = {
-                success: '<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>',
-                error: '<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>',
-                warning: '<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>',
-                info: '<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>'
-            };
-
-            toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white ${colors[type]} transform transition-all duration-300 translate-x-full opacity-0`;
-            toast.innerHTML = `
+                toast.className = `flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-white ${colors[type]} transform transition-all duration-300 translate-x-full opacity-0`;
+                toast.innerHTML = `
                 ${icons[type]}
                 <span class="font-medium">${message}</span>
                 <button onclick="this.parentElement.remove()" class="ml-2 hover:bg-white hover:bg-opacity-20 rounded p-1" aria-label="Cerrar">
@@ -168,179 +110,179 @@
                 </button>
             `;
 
-            container.appendChild(toast);
+                container.appendChild(toast);
 
-            setTimeout(() => {
-                toast.classList.remove('translate-x-full', 'opacity-0');
-            }, 10);
+                setTimeout(() => {
+                    toast.classList.remove('translate-x-full', 'opacity-0');
+                }, 10);
 
-            setTimeout(() => {
-                toast.classList.add('translate-x-full', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, duration);
-        }
-
-        function showLoading() {
-            document.getElementById('loading-overlay').classList.remove('hidden');
-        }
-
-        function hideLoading() {
-            document.getElementById('loading-overlay').classList.add('hidden');
-        }
-
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function () {
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Guardando...';
-                }
-                showLoading();
-            });
-        });
-
-        document.querySelectorAll('a[data-confirm]').forEach(link => {
-            link.addEventListener('click', function (e) {
-                if (!confirm(this.dataset.confirm)) {
-                    e.preventDefault();
-                }
-            });
-        });
-
-        window.updateCharCount = function (textarea, counterId, maxLength) {
-            const counter = document.getElementById(counterId);
-            if (counter) {
-                counter.textContent = textarea.value.length;
+                setTimeout(() => {
+                    toast.classList.add('translate-x-full', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
             }
-        };
 
-        document.querySelectorAll('input[required], textarea[required], select[required]').forEach(function (field) {
-            field.addEventListener('blur', function () {
-                const errorMsg = this.parentElement.querySelector('.error-message');
-                if (this.value.trim() === '') {
-                    this.classList.add('border-red-500');
-                    if (!errorMsg) {
-                        const msg = document.createElement('p');
-                        msg.className = 'error-message mt-1 text-sm text-red-600';
-                        msg.textContent = 'Este campo es requerido';
-                        this.parentElement.appendChild(msg);
-                    }
-                } else {
-                    this.classList.remove('border-red-500');
-                    if (errorMsg) {
-                        errorMsg.remove();
-                    }
-                }
-            });
-        });
-    </script>
-
-    <style>
-        .nav-link {
-            @apply px-3 py-2 rounded-md text-sm font-medium text-helios-text-muted hover:text-helios-primary hover:bg-gray-50 transition-colors duration-200;
-        }
-
-        .mobile-nav-link {
-            @apply block px-3 py-3 rounded-md text-base font-medium text-helios-text-muted hover:text-helios-primary hover:bg-gray-50 transition-colors;
-        }
-
-        .btn {
-            @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
-        }
-
-        .btn-primary {
-            @apply bg-helios-primary text-white hover:bg-helios-primary-dark focus:ring-helios-primary;
-        }
-
-        .btn-secondary {
-            @apply bg-white text-helios-text border-helios-border hover:bg-gray-50 focus:ring-helios-secondary;
-        }
-
-        .btn-danger {
-            @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
-        }
-
-        .btn-sm {
-            @apply px-3 py-1.5 text-xs;
-        }
-
-        .btn-lg {
-            @apply px-6 py-3 text-base;
-        }
-
-        .btn:disabled {
-            @apply opacity-50 cursor-not-allowed;
-        }
-
-        .alert {
-            @apply px-4 py-3 rounded-md border;
-        }
-
-        .alert-success {
-            @apply bg-green-50 text-green-800 border-green-200;
-        }
-
-        .alert-error {
-            @apply bg-red-50 text-red-800 border-red-200;
-        }
-
-        .alert-warning {
-            @apply bg-yellow-50 text-yellow-800 border-yellow-200;
-        }
-
-        .alert-info {
-            @apply bg-blue-50 text-blue-800 border-blue-200;
-        }
-
-        .skeleton {
-            @apply animate-pulse bg-gray-200 rounded;
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
+            function showLoading() {
+                document.getElementById('loading-overlay').classList.remove('hidden');
             }
-        }
 
-        .animate-spin {
-            animation: spin 1s linear infinite;
-        }
+            function hideLoading() {
+                document.getElementById('loading-overlay').classList.add('hidden');
+            }
 
-        *:focus-visible {
-            @apply outline-2 outline-offset-2 outline-helios-primary;
-        }
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function () {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                        submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Guardando...';
+                    }
+                    showLoading();
+                });
+            });
 
-        @media (max-width: 640px) {
+            document.querySelectorAll('a[data-confirm]').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    if (!confirm(this.dataset.confirm)) {
+                        e.preventDefault();
+                    }
+                });
+            });
+
+            window.updateCharCount = function (textarea, counterId, maxLength) {
+                const counter = document.getElementById(counterId);
+                if (counter) {
+                    counter.textContent = textarea.value.length;
+                }
+            };
+
+            document.querySelectorAll('input[required], textarea[required], select[required]').forEach(function (field) {
+                field.addEventListener('blur', function () {
+                    const errorMsg = this.parentElement.querySelector('.error-message');
+                    if (this.value.trim() === '') {
+                        this.classList.add('border-red-500');
+                        if (!errorMsg) {
+                            const msg = document.createElement('p');
+                            msg.className = 'error-message mt-1 text-sm text-red-600';
+                            msg.textContent = 'Este campo es requerido';
+                            this.parentElement.appendChild(msg);
+                        }
+                    } else {
+                        this.classList.remove('border-red-500');
+                        if (errorMsg) {
+                            errorMsg.remove();
+                        }
+                    }
+                });
+            });
+        </script>
+
+        <style>
+            .nav-link {
+                @apply px-3 py-2 rounded-md text-sm font-medium text-helios-text-muted hover:text-helios-primary hover:bg-gray-50 transition-colors duration-200;
+            }
+
+            .mobile-nav-link {
+                @apply block px-3 py-3 rounded-md text-base font-medium text-helios-text-muted hover:text-helios-primary hover:bg-gray-50 transition-colors;
+            }
+
             .btn {
-                @apply min-h-11 px-5 py-2.5;
+                @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
             }
 
-            input,
-            select,
-            textarea {
-                @apply text-base;
+            .btn-primary {
+                @apply bg-helios-primary text-white hover:bg-helios-primary-dark focus:ring-helios-primary;
             }
 
-            table {
-                @apply text-sm;
+            .btn-secondary {
+                @apply bg-white text-helios-text border-helios-border hover:bg-gray-50 focus:ring-helios-secondary;
             }
-        }
-    </style>
 
-    {% block scripts %}{% endblock %}
+            .btn-danger {
+                @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+            }
+
+            .btn-sm {
+                @apply px-3 py-1.5 text-xs;
+            }
+
+            .btn-lg {
+                @apply px-6 py-3 text-base;
+            }
+
+            .btn:disabled {
+                @apply opacity-50 cursor-not-allowed;
+            }
+
+            .alert {
+                @apply px-4 py-3 rounded-md border;
+            }
+
+            .alert-success {
+                @apply bg-green-50 text-green-800 border-green-200;
+            }
+
+            .alert-error {
+                @apply bg-red-50 text-red-800 border-red-200;
+            }
+
+            .alert-warning {
+                @apply bg-yellow-50 text-yellow-800 border-yellow-200;
+            }
+
+            .alert-info {
+                @apply bg-blue-50 text-blue-800 border-blue-200;
+            }
+
+            .skeleton {
+                @apply animate-pulse bg-gray-200 rounded;
+            }
+
+            .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+                border-width: 0;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .animate-spin {
+                animation: spin 1s linear infinite;
+            }
+
+            *:focus-visible {
+                @apply outline-2 outline-offset-2 outline-helios-primary;
+            }
+
+            @media (max-width: 640px) {
+                .btn {
+                    @apply min-h-11 px-5 py-2.5;
+                }
+
+                input,
+                select,
+                textarea {
+                    @apply text-base;
+                }
+
+                table {
+                    @apply text-sm;
+                }
+            }
+        </style>
+
+        {% block scripts %}{% endblock %}
 </body>
 
 </html>

@@ -3,12 +3,14 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from app.services.treatment_service import TreatmentService
 from app.services.assessment_service import AssessmentService
 from app.services.risk_classifier import RiskClassifier
+from app.services.rbac import login_required
 
 
 treatment_bp = Blueprint("treatment", __name__, url_prefix="/treatment")
 
 
 @treatment_bp.route("/risks")
+@login_required
 def risks():
     active_assessment = AssessmentService.get_active()
     unacceptable_risks = TreatmentService.list_unacceptable_risks(
@@ -23,6 +25,7 @@ def risks():
 
 
 @treatment_bp.route("/plans")
+@login_required
 def plans():
     active_assessment = AssessmentService.get_active()
     plans = TreatmentService.list_plans(
@@ -37,6 +40,7 @@ def plans():
 
 
 @treatment_bp.route("/plan/<plan_id>")
+@login_required
 def plan_detail(plan_id: str):
     active_assessment = AssessmentService.get_active()
     plan = TreatmentService.get_plan_with_tasks(plan_id)
@@ -52,6 +56,7 @@ def plan_detail(plan_id: str):
 
 
 @treatment_bp.route("/plan/<mapping_id>/create", methods=["GET", "POST"])
+@login_required
 def create_plan(mapping_id: str):
     active_assessment = AssessmentService.get_active()
     mapping = TreatmentService.get_mapping_details(mapping_id)
@@ -84,6 +89,7 @@ def create_plan(mapping_id: str):
 
 
 @treatment_bp.route("/plan/<plan_id>/edit", methods=["GET", "POST"])
+@login_required
 def edit_plan(plan_id: str):
     active_assessment = AssessmentService.get_active()
     plan = TreatmentService.get_plan_with_tasks(plan_id)
@@ -116,6 +122,7 @@ def edit_plan(plan_id: str):
 
 
 @treatment_bp.route("/plan/<plan_id>/delete")
+@login_required
 def delete_plan(plan_id: str):
     try:
         TreatmentService.delete_plan(plan_id)
@@ -129,6 +136,7 @@ def delete_plan(plan_id: str):
 
 
 @treatment_bp.route("/plan/<plan_id>/task/create", methods=["GET", "POST"])
+@login_required
 def create_task(plan_id: str):
     active_assessment = AssessmentService.get_active()
     plan = TreatmentService.get_plan_with_tasks(plan_id)
@@ -172,6 +180,7 @@ def create_task(plan_id: str):
 
 
 @treatment_bp.route("/task/<task_id>/edit", methods=["GET", "POST"])
+@login_required
 def edit_task(task_id: str):
     active_assessment = AssessmentService.get_active()
     task = TreatmentService.list_tasks()
@@ -217,6 +226,7 @@ def edit_task(task_id: str):
 
 
 @treatment_bp.route("/task/<task_id>/delete")
+@login_required
 def delete_task(task_id: str):
     task = TreatmentService.list_tasks()
     task_data = next((t for t in task if t["id"] == task_id), None)

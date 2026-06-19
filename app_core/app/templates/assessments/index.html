@@ -111,6 +111,8 @@
                                 else '-' }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="/assessments/{{ assessment.id }}"
+                                class="text-indigo-600 hover:text-indigo-900 mr-3">Ver</a>
                             {% if assessment.status == 'active' %}
                             <a href="/assessments/{{ assessment.id }}/set-active"
                                 class="text-green-600 hover:text-green-900 mr-3">Activar</a>

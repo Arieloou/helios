@@ -125,7 +125,8 @@ def _register_session_hook(app: Flask) -> None:
 
     @app.context_processor
     def inject_current_user():
-        return {"current_user": SessionService.get_current_user()}
+        from datetime import date
+        return {"current_user": SessionService.get_current_user(), "now": date}
 
 
 def _register_error_handlers(app: Flask) -> None:

@@ -3,6 +3,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for,
 from app.services.magerit_service import MageritService
 from app.services.assessment_service import AssessmentService
 from app.services.asset_service import AssetService
+from app.services.rbac import login_required
 from app.data.catalogs import (
     initialize_catalogs,
     get_threats,
@@ -30,6 +31,7 @@ def index():
 
 
 @risk_bp.route("/create", methods=["GET", "POST"])
+@login_required
 def create():
     active_assessment = AssessmentService.get_active()
     assets = AssetService.list_all()
@@ -85,6 +87,7 @@ def create():
 
 
 @risk_bp.route("/<mapping_id>/edit", methods=["GET", "POST"])
+@login_required
 def edit(mapping_id: str):
     mapping = MageritService.get_mapping(mapping_id)
     if not mapping:
@@ -118,6 +121,7 @@ def edit(mapping_id: str):
 
 
 @risk_bp.route("/<mapping_id>/delete")
+@login_required
 def delete(mapping_id: str):
     try:
         MageritService.delete_mapping(mapping_id)
