@@ -1,7 +1,7 @@
 """
 Authentication Controller.
 Handles login, logout, and session management.
-Uses AuthService for credential validation and session for state.
+Uses AuthService for credential validation and SessionService for user resolution.
 """
 
 from flask import (
@@ -10,6 +10,7 @@ from flask import (
 )
 
 from app.services.auth_service import AuthService
+from app.services.session_service import SessionService
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -18,7 +19,7 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 def login():
     """Handle login form display and submission."""
     # Redirect if already logged in
-    if session.get("user"):
+    if SessionService.is_authenticated():
         return redirect(url_for("auth.dashboard"))
 
     if request.method == "POST":
@@ -35,10 +36,11 @@ def login():
             result = AuthService.authenticate(username, password)
 
             if result["success"]:
-                # Store user data in session
+                # Store only the user_id and role in the session cookie
+                # The username is NOT stored — it will be resolved fresh
+                # from the DB on each request by SessionService
                 session["user"] = {
                     "user_id": result["user"]["id"],
-                    "username": result["user"]["username"],
                     "role": result["role"],
                 }
                 flash("Inicio de sesión exitoso.", "success")
@@ -68,12 +70,13 @@ def logout():
 @auth_bp.route("/dashboard")
 def dashboard():
     """Display the main dashboard after login."""
-    user = session.get("user")
+    # SessionService resolves user from DB via before_request hook
+    user = SessionService.get_current_user()
     if not user:
         return redirect(url_for("auth.login"))
 
     return render_template(
         "dashboard.html",
-        username=user.get("username", "[desconocido]"),
-        role=user.get("role"),
+        username=user.username,
+        role=user.role,
     )

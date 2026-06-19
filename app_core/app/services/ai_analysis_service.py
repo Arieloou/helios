@@ -9,7 +9,7 @@ from app.services.ollama_client import ollama_client
 class AIAnalysisService:
     @classmethod
     def is_available(cls) -> bool:
-        return ollama_client.is_available()
+        return ollama_client.health_check()
 
     @classmethod
     def get_models(cls) -> List[str]:

@@ -1,20 +1,12 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for, Response
-from flask import session
 
 from app.services.dashboard_service import DashboardService
 from app.services.export_service import ExportService
 from app.services.assessment_service import AssessmentService
+from app.services.session_service import SessionService
 
 
 dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
-
-
-def _get_current_user():
-    """Get the current username from session."""
-    user = session.get("user")
-    if user:
-        return user.get("username", "[desconocido]")
-    return None
 
 
 @dashboard_bp.route("/")
@@ -23,12 +15,10 @@ def index():
     summary = DashboardService.get_executive_summary(
         active_assessment["id"] if active_assessment else None
     )
-    current_user = _get_current_user()
     return render_template(
         "dashboard/overview.html",
         summary=summary,
         active_assessment=active_assessment,
-        current_user=current_user,
     )
 
 

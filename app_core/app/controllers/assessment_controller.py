@@ -1,36 +1,19 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask import session
 
 from app.services.assessment_service import AssessmentService
+from app.services.session_service import SessionService
 
 assessment_bp = Blueprint("assessment", __name__, url_prefix="/assessments")
-
-
-def _get_current_user():
-    user = session.get("user")
-    if user:
-        try:
-            encryption = None
-            from flask import current_app
-            encryption = current_app.extensions.get("encryption")
-            if encryption:
-                return encryption.decrypt(user.get("username_encrypted", ""))
-            return "[cifrado]"
-        except Exception:
-            return "[cifrado]"
-    return None
 
 
 @assessment_bp.route("/")
 def index():
     assessments = AssessmentService.list_all()
     active_assessment = AssessmentService.get_active()
-    current_user = _get_current_user()
     return render_template(
         "assessments/index.html",
         assessments=assessments,
         active_assessment=active_assessment,
-        current_user=current_user,
     )
 
 
@@ -50,7 +33,7 @@ def create():
             return render_template("assessments/create.html")
 
         try:
-            current_user = _get_current_user()
+            current_user = SessionService.get_username()
             AssessmentService.create(
                 name=name,
                 description=description,
@@ -164,12 +147,10 @@ def reopen(assessment_id: str):
 def select():
     active_assessments = AssessmentService.list_active()
     current_active = AssessmentService.get_active()
-    current_user = _get_current_user()
     return render_template(
         "assessments/select.html",
         assessments=active_assessments,
         current_active=current_active,
-        current_user=current_user,
     )
 
 

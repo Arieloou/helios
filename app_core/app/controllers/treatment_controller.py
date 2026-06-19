@@ -1,5 +1,4 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask import session
 
 from app.services.treatment_service import TreatmentService
 from app.services.assessment_service import AssessmentService
@@ -7,21 +6,6 @@ from app.services.risk_classifier import RiskClassifier
 
 
 treatment_bp = Blueprint("treatment", __name__, url_prefix="/treatment")
-
-
-def _get_current_user():
-    user = session.get("user")
-    if user:
-        try:
-            encryption = None
-            from flask import current_app
-            encryption = current_app.extensions.get("encryption")
-            if encryption:
-                return encryption.decrypt(user.get("username_encrypted", ""))
-            return "[cifrado]"
-        except Exception:
-            return "[cifrado]"
-    return None
 
 
 @treatment_bp.route("/risks")

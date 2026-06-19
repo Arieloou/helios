@@ -22,6 +22,7 @@ def create_app() -> Flask:
     _load_config(app)
     _init_extensions(app)
     _register_blueprints(app)
+    _register_session_hook(app)
     _register_error_handlers(app)
     _register_root_redirect(app)
 
@@ -108,6 +109,23 @@ def _register_blueprints(app: Flask) -> None:
     app.register_blueprint(user_bp)
 
     app.logger.debug("All blueprints registered")
+
+
+def _register_session_hook(app: Flask) -> None:
+    """
+    Wire the SessionService into Flask's request lifecycle.
+    - before_request: resolves user from session into flask.g
+    - context_processor: injects 'current_user' into all Jinja2 templates
+    """
+    from .services.session_service import SessionService
+
+    @app.before_request
+    def load_user():
+        SessionService.load_current_user()
+
+    @app.context_processor
+    def inject_current_user():
+        return {"current_user": SessionService.get_current_user()}
 
 
 def _register_error_handlers(app: Flask) -> None:

@@ -48,14 +48,14 @@
                     <a href="/treatment/risks" class="nav-link">Tratamiento</a>
                     <a href="/iso/" class="nav-link">Auditoría ISO</a>
                     <a href="/dashboard/" class="nav-link">Dashboard</a>
-                    {% if session.get("user") and session.get("user").role == "admin" %}
+                    {% if current_user and current_user.role == "admin" %}
                     <a href="/users/" class="nav-link">Usuarios</a>
                     {% endif %}
                 </div>
 
                 <div class="hidden md:flex items-center space-x-3">
-                    {% if session.get("user") %}
-                    <span class="text-sm text-helios-text-muted">{{ session.get("user").name }}</span>
+                    {% if current_user %}
+                    <span class="text-sm text-helios-text-muted">{{ current_user.username }}</span>
                     <a href="/auth/logout" class="btn btn-secondary btn-sm">Cerrar sesión</a>
                     {% else %}
                     <a href="/auth/login" class="btn btn-primary btn-sm">Iniciar sesión</a>
@@ -85,11 +85,11 @@
                 <a href="/treatment/risks" class="mobile-nav-link">Tratamiento</a>
                 <a href="/iso/" class="mobile-nav-link">Auditoría ISO</a>
                 <a href="/dashboard/" class="mobile-nav-link">Dashboard</a>
-                {% if session.get("user") and session.get("user").role == "admin" %}
+                {% if current_user and current_user.role == "admin" %}
                 <a href="/users/" class="mobile-nav-link">Usuarios</a>
                 {% endif %}
                 <div class="pt-2 border-t border-helios-border">
-                    {% if session.get("user") %}
+                    {% if current_user %}
                     <a href="/auth/logout" class="btn btn-secondary w-full text-center">Cerrar sesión</a>
                     {% else %}
                     <a href="/auth/login" class="btn btn-primary w-full text-center">Iniciar sesión</a>

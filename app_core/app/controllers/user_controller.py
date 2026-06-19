@@ -3,32 +3,25 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for,
 from app.services.auth_service import AuthService
 from app.services.rbac import admin_required
 from app.models.user import UserRole
+from app.services.session_service import SessionService
 
 
 user_bp = Blueprint("user", __name__, url_prefix="/users")
-
-
-def _get_current_user():
-    user = session.get("user")
-    return user
 
 
 @user_bp.route("/")
 @admin_required
 def index():
     users = AuthService.list_users()
-    current_user = _get_current_user()
     return render_template(
         "users/index.html",
         users=users,
-        current_user=current_user,
     )
 
 
 @user_bp.route("/create", methods=["GET", "POST"])
 @admin_required
 def create():
-    current_user = _get_current_user()
 
     if request.method == "POST":
         username = request.form.get("username", "").strip()
@@ -38,7 +31,7 @@ def create():
 
         if not username or not password:
             flash("Usuario y contraseña son requeridos.", "error")
-            return render_template("users/create.html", current_user=current_user)
+            return render_template("users/create.html")
 
         result = AuthService.create_user(
             username=username,
@@ -53,13 +46,12 @@ def create():
         else:
             flash(result["error"], "error")
 
-    return render_template("users/create.html", current_user=current_user)
+    return render_template("users/create.html")
 
 
 @user_bp.route("/<user_id>/edit", methods=["GET", "POST"])
 @admin_required
 def edit(user_id: str):
-    current_user = _get_current_user()
     user = AuthService.get_user(user_id)
 
     if not user:
@@ -87,15 +79,14 @@ def edit(user_id: str):
     return render_template(
         "users/edit.html",
         user=user,
-        current_user=current_user,
     )
 
 
 @user_bp.route("/<user_id>/deactivate")
 @admin_required
 def deactivate(user_id: str):
-    current_user_data = session.get("user", {})
-    if current_user_data.get("user_id") == user_id:
+    current_user = SessionService.get_current_user()
+    if current_user and current_user.id == user_id:
         flash("No puede desactivarse a sí mismo.", "error")
         return redirect(url_for("user.index"))
 
@@ -123,8 +114,8 @@ def activate(user_id: str):
 @user_bp.route("/<user_id>/delete")
 @admin_required
 def delete(user_id: str):
-    current_user_data = session.get("user", {})
-    if current_user_data.get("user_id") == user_id:
+    current_user = SessionService.get_current_user()
+    if current_user and current_user.id == user_id:
         flash("No puede eliminarse a sí mismo.", "error")
         return redirect(url_for("user.index"))
 
@@ -139,12 +130,12 @@ def delete(user_id: str):
 
 @user_bp.route("/<user_id>/change-password", methods=["GET", "POST"])
 def change_password(user_id: str):
-    current_user_data = session.get("user", {})
-    if not current_user_data:
+    current_user = SessionService.get_current_user()
+    if not current_user:
         flash("Debe iniciar sesión.", "error")
         return redirect(url_for("auth.login"))
 
-    if current_user_data.get("role") != UserRole.ADMIN and current_user_data.get("user_id") != user_id:
+    if current_user.role != UserRole.ADMIN and current_user.id != user_id:
         flash("No tiene permisos para cambiar esta contraseña.", "error")
         return redirect(url_for("auth.dashboard"))
 
