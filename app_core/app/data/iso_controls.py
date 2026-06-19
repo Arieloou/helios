@@ -2,6 +2,28 @@ import json
 from app.models.iso_models import ISOControl, ControlQuestion
 
 
+# TODO: RF-15 - ISO 27002 Controls via API/MCP
+# Future implementation: Integrate with external API or MCP server to fetch
+# ISO 27002 control definitions dynamically.
+# Example integration point:
+# - Replace static ISO_27002_CONTROLS with API-fetched controls
+# - Add caching layer for API responses
+# - Consider using MCP protocol for standardized control updates
+
+
+VULNERABILITY_CONTROL_MAP = {
+    "Control de acceso": ["A.9.1", "A.9.2", "A.9.4"],
+    "Criptografía": ["A.10.1"],
+    "Gestión de vulnerabilidades": ["A.12.2"],
+    "Seguridad de red": ["A.13.1", "A.11.1", "A.11.2"],
+    "Gestión de la continuidad": ["A.12.3", "A.17.1"],
+    "Monitorización": ["A.12.1"],
+    "Seguridad de los recursos humanos": ["A.7.1", "A.7.2", "A.6.1"],
+    "Gestión de la seguridad": ["A.5.1", "A.5.2", "A.6.2"],
+    "Relaciones con proveedores": ["A.15.1"],
+}
+
+
 ISO_27002_CONTROLS = [
     {
         "control_id": "A.5.1",

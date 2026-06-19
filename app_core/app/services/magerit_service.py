@@ -1,8 +1,11 @@
+import logging
 from typing import Dict, List, Optional
 
 from app.models.risk_models import AssetThreatMapping
 from app.models.asset import Asset
 from app.services.assessment_service import AssessmentService
+
+logger = logging.getLogger(__name__)
 
 
 class MageritService:
@@ -17,16 +20,19 @@ class MageritService:
             mappings = AssetThreatMapping.get_by_assessment(assessment_id)
         else:
             mappings = AssetThreatMapping.get_all()
-        
+
         result = []
         for mapping in mappings:
             data = mapping.to_dict()
-            
+
             asset = Asset.get_by_id(mapping.asset_id)
             if asset:
                 data["asset_name"] = asset.name
                 data["asset_v_total"] = asset.v_total
-            
+            else:
+                data["asset_name"] = "Unknown Asset"
+                data["asset_v_total"] = 1
+
             result.append(data)
         return result
 
@@ -58,8 +64,10 @@ class MageritService:
         degradation: float,
         assessment_id: Optional[str] = None,
     ) -> Dict:
+        logger.info(f"Creating mapping for asset={asset_id}, threat={threat_id}, vulnerability={vulnerability_id}")
         asset = Asset.get_by_id(asset_id)
         if not asset:
+            logger.error(f"Asset not found: {asset_id}")
             raise ValueError(f"Activo no encontrado: {asset_id}")
         
         if not assessment_id:

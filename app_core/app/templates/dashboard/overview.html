@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Ejecutivo - Helios{% endblock %}
+
+{% block content %}
+<h1>Dashboard Ejecutivo</h1>
+
+{% if not active_assessment %}
+<div style="background: #fff3e0; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    No hay evaluación activa. <a href="/assessments/select">Seleccionar una evaluación</a> primero.
+</div>
+{% else %}
+<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Evaluación activa:</strong> {{ active_assessment.name }}
+</div>
+{% endif %}
+
+<div style="margin-bottom: 1rem;">
+    <a href="/dashboard/matrix"><button>Matriz de Riesgo 5x5</button></a>
+    <a href="/dashboard/risk-journey"><button>Viaje del Riesgo</button></a>
+    <a href="/dashboard/export"><button>Exportar Datos</button></a>
+</div>
+
+{% if summary.total_risks > 0 %}
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <div style="background: #f5f5f5; padding: 1rem; border-radius: 4px; text-align: center;">
+        <div style="font-size: 2rem; font-weight: bold;">{{ summary.total_risks }}</div>
+        <div>Total de Riesgos</div>
+    </div>
+    <div style="background: #f5f5f5; padding: 1rem; border-radius: 4px; text-align: center;">
+        <div style="font-size: 2rem; font-weight: bold;">{{ summary.avg_maturity }}%</div>
+        <div>Madurez Promedio</div>
+    </div>
+    <div style="background: #f5f5f5; padding: 1rem; border-radius: 4px; text-align: center;">
+        <div style="font-size: 2rem; font-weight: bold; color: #4caf50;">{{ summary.reduction_percentage }}%</div>
+        <div>Reducción de Riesgo</div>
+    </div>
+    <div style="background: #f5f5f5; padding: 1rem; border-radius: 4px; text-align: center;">
+        <div style="font-size: 2rem; font-weight: bold;">{{ summary.risks_reduced }}</div>
+        <div>Riesgo Reducido</div>
+    </div>
+</div>
+
+<h2>Distribución de Riesgos Inherentes</h2>
+<div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+    <div style="flex: 1; background: #f44336; color: white; padding: 1rem; border-radius: 4px; text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: bold;">{{ summary.ri_critical }}</div>
+        <div>Crítico</div>
+    </div>
+    <div style="flex: 1; background: #ff9800; color: white; padding: 1rem; border-radius: 4px; text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: bold;">{{ summary.ri_high }}</div>
+        <div>Alto</div>
+    </div>
+    <div style="flex: 1; background: #ffc107; color: black; padding: 1rem; border-radius: 4px; text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: bold;">{{ summary.ri_medium }}</div>
+        <div>Medio</div>
+    </div>
+    <div style="flex: 1; background: #4caf50; color: white; padding: 1rem; border-radius: 4px; text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: bold;">{{ summary.ri_low }}</div>
+        <div>Bajo</div>
+    </div>
+</div>
+
+<h2>Distribución de Riesgos Residuales</h2>
+<div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+    <div style="flex: 1; background: #f44336; color: white; padding: 1rem; border-radius: 4px; text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: bold;">{{ summary.rr_critical }}</div>
+        <div>Crítico</div>
+    </div>
+    <div style="flex: 1; background: #ff9800; color: white; padding: 1rem; border-radius: 4px; text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: bold;">{{ summary.rr_high }}</div>
+        <div>Alto</div>
+    </div>
+    <div style="flex: 1; background: #ffc107; color: black; padding: 1rem; border-radius: 4px; text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: bold;">{{ summary.rr_medium }}</div>
+        <div>Medio</div>
+    </div>
+    <div style="flex: 1; background: #4caf50; color: white; padding: 1rem; border-radius: 4px; text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: bold;">{{ summary.rr_low }}</div>
+        <div>Bajo</div>
+    </div>
+</div>
+{% else %}
+<p>No hay riesgos calculados. <a href="/risk/">Crear mapeos de riesgos</a> primero.</p>
+{% endif %}
+{% endblock %}

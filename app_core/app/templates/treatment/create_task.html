@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Tarea - Helios{% endblock %}
+
+{% block content %}
+<h1>Nueva Tarea</h1>
+
+<p class="mb-4">Plan: {{ RiskClassifier.get_strategy_label(plan.strategy) }}</p>
+
+<form method="POST" class="space-y-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div>
+        <label for="priority" class="block text-sm font-medium text-gray-700 mb-1">Prioridad</label>
+        <select name="priority" id="priority" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="low">Baja</option>
+            <option value="medium" selected>Media</option>
+            <option value="high">Alta</option>
+            <option value="critical">Crítica</option>
+        </select>
+    </div>
+    <div>
+        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descripción de la Tarea:</label>
+        <textarea name="description" id="description" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" oninput="updateCharCount(this, 'desc-count', 500)"></textarea>
+        <div class="text-right text-sm text-gray-500 mt-1"><span id="desc-count">0</span>/500</div>
+    </div>
+
+    <div>
+        <label for="responsible" class="block text-sm font-medium text-gray-700 mb-1">Responsable (opcional)</label>
+        <select name="responsible" id="responsible" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">-- Seleccionar Responsable --</option>
+            <option value="John Doe">John Doe</option>
+            <option value="Jane Smith">Jane Smith</option>
+            <option value="Security Team">Security Team</option>
+            <option value="IT Operations">IT Operations</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="due_date" class="block text-sm font-medium text-gray-700 mb-1">Fecha Límite (opcional)</label>
+        <input type="date" name="due_date" id="due_date" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+
+    <div class="flex gap-3 pt-4">
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Crear Tarea</button>
+        <button type="reset" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">Limpiar</button>
+        <a href="/treatment/plan/{{ plan.id }}" class="px-4 py-2 text-gray-700 hover:text-gray-900">Cancelar</a>
+    </div>
+
+    <div style="margin-top: 1rem;">
+        <button type="submit">Crear Tarea</button>
+        <a href="/treatment/plan/{{ plan.id }}" style="margin-left: 1rem;">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

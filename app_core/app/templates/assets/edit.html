@@ -1,48 +1,111 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Editar Activo - Helios{% endblock %}
 
 {% block content %}
-<h1>Editar Activo</h1>
+<div class="max-w-3xl mx-auto">
+    <div class="mb-6">
+        <a href="/assets/" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
+            <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Volver a activos
+        </a>
+    </div>
 
-<form method="POST">
-    <label for="name">Nombre del Activo *</label>
-    <input type="text" id="name" name="name" required value="{{ asset.name }}">
+    <div class="bg-white shadow-sm border border-gray-200 rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h1 class="text-xl font-bold text-gray-900">Editar Activo</h1>
+        </div>
 
-    <label for="asset_type">Tipo de Activo *</label>
-    <select id="asset_type" name="asset_type" required>
-        <option value="hardware" {% if asset.asset_type == 'hardware' %}selected{% endif %}>Hardware</option>
-        <option value="software" {% if asset.asset_type == 'software' %}selected{% endif %}>Software</option>
-        <option value="datos" {% if asset.asset_type == 'datos' %}selected{% endif %}>Datos</option>
-        <option value="personas" {% if asset.asset_type == 'personas' %}selected{% endif %}>Personas</option>
-        <option value="procesos" {% if asset.asset_type == 'procesos' %}selected{% endif %}>Procesos</option>
-        <option value="otro" {% if asset.asset_type == 'otro' %}selected{% endif %}>Otro</option>
-    </select>
+        <form method="POST" class="px-6 py-6 space-y-6">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nombre del Activo *</label>
+                <input type="text" id="name" name="name" required value="{{ asset.name }}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
 
-    <label for="description">Descripción</label>
-    <textarea id="description" name="description" rows="3">{{ asset.description or '' }}</textarea>
+            <div>
+                <label for="asset_type" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Activo *</label>
+                <select id="asset_type" name="asset_type" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="hardware" {% if asset.asset_type=='hardware' %}selected{% endif %}>Hardware</option>
+                    <option value="software" {% if asset.asset_type=='software' %}selected{% endif %}>Software</option>
+                    <option value="datos" {% if asset.asset_type=='datos' %}selected{% endif %}>Datos</option>
+                    <option value="personas" {% if asset.asset_type=='personas' %}selected{% endif %}>Personas</option>
+                    <option value="procesos" {% if asset.asset_type=='procesos' %}selected{% endif %}>Procesos</option>
+                    <option value="otro" {% if asset.asset_type=='otro' %}selected{% endif %}>Otro</option>
+                </select>
+            </div>
 
-    <fieldset style="border: 1px solid #ddd; padding: 1rem; margin-top: 1rem;">
-        <legend style="font-weight: bold;">Valoración CID (1-5)</legend>
-        <p style="font-size: 0.9rem; color: #666;">Valor total actual: <strong>{{ asset.v_total }}</strong> (máx C,I,D)</p>
-        
-        <label for="confidentiality">Confidencialidad (C) *</label>
-        <input type="range" id="confidentiality" name="confidentiality" min="1" max="5" value="{{ asset.confidentiality }}" oninput="this.nextElementSibling.value = this.value">
-        <output>{{ asset.confidentiality }}</output>
-        <span style="font-size: 0.8rem; color: #666;">(1=Mínima, 5=Máxima)</span>
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                <textarea id="description" name="description" rows="3"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">{{ asset.description or '' }}</textarea>
+            </div>
 
-        <label for="integrity">Integridad (I) *</label>
-        <input type="range" id="integrity" name="integrity" min="1" max="5" value="{{ asset.integrity }}" oninput="this.nextElementSibling.value = this.value">
-        <output>{{ asset.integrity }}</output>
-        <span style="font-size: 0.8rem; color: #666;">(1=Mínima, 5=Máxima)</span>
+            <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900 mb-1">Valoración CID (1-5)</h3>
+                <p class="text-sm text-gray-500 mb-4">Valor total actual: <span class="font-bold text-blue-600">{{
+                        asset.v_total }}</span> (m�x C,I,D)</p>
 
-        <label for="availability">Disponibilidad (D) *</label>
-        <input type="range" id="availability" name="availability" min="1" max="5" value="{{ asset.availability }}" oninput="this.nextElementSibling.value = this.value">
-        <output>{{ asset.availability }}</output>
-        <span style="font-size: 0.8rem; color: #666;">(1=Mínima, 5=Máxima)</span>
-    </fieldset>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <label for="confidentiality"
+                            class="block text-sm font-medium text-gray-700 w-32">Confidencialidad (C)</label>
+                        <div class="flex items-center space-x-3 flex-1">
+                            <input type="range" id="confidentiality" name="confidentiality" min="1" max="5"
+                                value="{{ asset.confidentiality }}"
+                                oninput="document.getElementById('conf-output').textContent = this.value"
+                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <output id="conf-output" class="w-8 text-center font-medium text-gray-900">{{
+                                asset.confidentiality }}</output>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 -mt-2">1=Mínima, 5=Máxima</p>
 
-    <button type="submit">Guardar Cambios</button>
-    <a href="/assets/" style="margin-left: 1rem;">Cancelar</a>
-</form>
+                    <div class="flex items-center justify-between">
+                        <label for="integrity" class="block text-sm font-medium text-gray-700 w-32">Integridad
+                            (I)</label>
+                        <div class="flex items-center space-x-3 flex-1">
+                            <input type="range" id="integrity" name="integrity" min="1" max="5"
+                                value="{{ asset.integrity }}"
+                                oninput="document.getElementById('int-output').textContent = this.value"
+                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <output id="int-output" class="w-8 text-center font-medium text-gray-900">{{ asset.integrity
+                                }}</output>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 -mt-2">1=Mínima, 5=Máxima</p>
+
+                    <div class="flex items-center justify-between">
+                        <label for="availability" class="block text-sm font-medium text-gray-700 w-32">Disponibilidad
+                            (D)</label>
+                        <div class="flex items-center space-x-3 flex-1">
+                            <input type="range" id="availability" name="availability" min="1" max="5"
+                                value="{{ asset.availability }}"
+                                oninput="document.getElementById('disp-output').textContent = this.value"
+                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <output id="disp-output" class="w-8 text-center font-medium text-gray-900">{{
+                                asset.availability }}</output>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 -mt-2">1=Mínima, 5=Máxima</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <a href="/assets/"
+                    class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    Cancelar
+                </a>
+                <button type="submit"
+                    class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

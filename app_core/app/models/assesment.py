@@ -3,6 +3,8 @@ from enum import Enum
 from typing import Dict, List, Optional
 import uuid
 
+from .base import db
+
 
 class AssessmentStatus(str, Enum):
     ACTIVE = "active"
@@ -10,32 +12,28 @@ class AssessmentStatus(str, Enum):
     CLOSED = "closed"
 
 
-class Assessment:
+class Assessment(db.Model):
+    __tablename__ = "assessments"
+
+    # Encrypted fields: middleware will auto-encrypt/decrypt these
+    __encrypted_fields__ = ["name", "description"]
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.Text, nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    period = db.Column(db.String(50), nullable=True)
+    status = db.Column(db.String(20), default=AssessmentStatus.ACTIVE.value)
+    created_by = db.Column(db.String(255), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, nullable=True)
+    closed_at = db.Column(db.DateTime, nullable=True)
+
     _instances: Dict[str, "Assessment"] = {}
 
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        period: Optional[str] = None,
-        status: AssessmentStatus = AssessmentStatus.ACTIVE,
-        created_by: Optional[str] = None,
-        created_at: Optional[datetime] = None,
-        updated_at: Optional[datetime] = None,
-        closed_at: Optional[datetime] = None,
-    ):
-        self.id = id or str(uuid.uuid4())
-        self.name = name
-        self.description = description
-        self.period = period
-        self.status = status
-        self.created_by = created_by
-        self.created_at = created_at or datetime.now()
-        self.updated_at = updated_at
-        self.closed_at = closed_at
-
-        self._instances[self.id] = self
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.id:
+            self._instances[self.id] = self
 
     def to_dict(self):
         return {
@@ -43,7 +41,7 @@ class Assessment:
             "name": self.name,
             "description": self.description,
             "period": self.period,
-            "status": self.status.value,
+            "status": self.status,
             "created_by": self.created_by,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
@@ -52,22 +50,21 @@ class Assessment:
 
     @classmethod
     def get_by_id(cls, id: str) -> Optional["Assessment"]:
-        return cls._instances.get(id)
+        if id in cls._instances:
+            return cls._instances[id]
+        return cls.query.get(id)
 
     @classmethod
     def get_by_name(cls, name: str) -> Optional["Assessment"]:
-        for assessment in cls._instances.values():
-            if assessment.name == name:
-                return assessment
-        return None
+        return cls.query.filter_by(name=name).first()
 
     @classmethod
     def get_all(cls) -> List["Assessment"]:
-        return list(cls._instances.values())
+        return cls.query.all()
 
     @classmethod
     def get_active(cls) -> List["Assessment"]:
-        return [a for a in cls._instances.values() if a.status == AssessmentStatus.ACTIVE]
+        return cls.query.filter_by(status=AssessmentStatus.ACTIVE.value).all()
 
     @classmethod
     def create(
@@ -79,13 +76,16 @@ class Assessment:
     ) -> "Assessment":
         if cls.get_by_name(name):
             raise ValueError(f"Ya existe una evaluación con el nombre '{name}'")
-        return cls(
+        assessment = cls(
             name=name,
             description=description,
             period=period,
-            status=AssessmentStatus.ACTIVE,
+            status=AssessmentStatus.ACTIVE.value,
             created_by=created_by,
         )
+        db.session.add(assessment)
+        db.session.commit()
+        return assessment
 
     def update(
         self,
@@ -103,21 +103,27 @@ class Assessment:
         if period is not None:
             self.period = period
         self.updated_at = datetime.now()
+        db.session.commit()
 
     def archive(self) -> None:
-        self.status = AssessmentStatus.ARCHIVED
+        self.status = AssessmentStatus.ARCHIVED.value
         self.updated_at = datetime.now()
+        db.session.commit()
 
     def close(self) -> None:
-        self.status = AssessmentStatus.CLOSED
+        self.status = AssessmentStatus.CLOSED.value
         self.closed_at = datetime.now()
         self.updated_at = datetime.now()
+        db.session.commit()
 
     def reopen(self) -> None:
-        self.status = AssessmentStatus.ACTIVE
+        self.status = AssessmentStatus.ACTIVE.value
         self.closed_at = None
         self.updated_at = datetime.now()
+        db.session.commit()
 
     def delete(self) -> None:
         if self.id in self._instances:
             del self._instances[self.id]
+        db.session.delete(self)
+        db.session.commit()

@@ -1,76 +1,159 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Evaluaciones - Helios{% endblock %}
 
 {% block content %}
-<h1>Gestión de Evaluaciones</h1>
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Gestión de Evaluaciones</h1>
+            {% if active_assessment %}
+            <p class="mt-1 text-sm text-green-600 flex items-center">
+                <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd" />
+                </svg>
+                Evaluación activa: {{ active_assessment.name }}
+                <span
+                    class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    {{ active_assessment.period }}
+                </span>
+                <a href="/assessments/clear-active"
+                    class="ml-3 text-sm text-gray-500 hover:text-gray-700 underline">Cambiar</a>
+            </p>
+            {% else %}
+            <p class="mt-1 text-sm text-yellow-600 flex items-center">
+                <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clip-rule="evenodd" />
+                </svg>
+                No hay evaluación activa. <a href="/assessments/select"
+                    class="underline hover:text-yellow-800">Seleccionar</a>
+            </p>
+            {% endif %}
+        </div>
+        <div class="flex gap-3">
+            <a href="/assessments/create"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Nueva Evaluación
+            </a>
+            <a href="/assessments/select"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                Seleccionar Activa
+            </a>
+        </div>
+    </div>
 
-{% if active_assessment %}
-<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
-    <strong>Evaluación Activa:</strong> {{ active_assessment.name }}
-    <span style="background: #4caf50; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; margin-left: 0.5rem;">{{ active_assessment.period }}</span>
-    <a href="/assessments/clear-active" style="margin-left: 1rem;">Cambiar</a>
+    {% if assessments %}
+    <div class="bg-white shadow-sm border border-gray-200 rounded-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Nombre</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Descripción</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Período</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Estado</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Creador</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for assessment in assessments %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ assessment.name }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-500">{{ assessment.description or '-' }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ assessment.period }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if assessment.status == 'active' %}
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Activa</span>
+                            {% elif assessment.status == 'archived' %}
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Archivada</span>
+                            {% else %}
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Cerrada</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">{{ assessment.created_by or '-' }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">{{ assessment.created_at[:10] if assessment.created_at
+                                else '-' }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            {% if assessment.status == 'active' %}
+                            <a href="/assessments/{{ assessment.id }}/set-active"
+                                class="text-green-600 hover:text-green-900 mr-3">Activar</a>
+                            <a href="/assessments/{{ assessment.id }}/edit"
+                                class="text-blue-600 hover:text-blue-900 mr-3">Editar</a>
+                            <a href="/assessments/{{ assessment.id }}/archive"
+                                onclick="return confirm('�Archivar esta evaluación?')"
+                                class="text-yellow-600 hover:text-yellow-900 mr-3">Archivar</a>
+                            <a href="/assessments/{{ assessment.id }}/close"
+                                onclick="return confirm('�Cerrar esta evaluación? Se conservar� el hist�rico.')"
+                                class="text-red-600 hover:text-red-900">Cerrar</a>
+                            {% elif assessment.status == 'archived' %}
+                            <a href="/assessments/{{ assessment.id }}/edit"
+                                class="text-blue-600 hover:text-blue-900 mr-3">Editar</a>
+                            <a href="/assessments/{{ assessment.id }}/delete"
+                                onclick="return confirm('�Eliminar esta evaluación? Esta acción no se puede deshacer.')"
+                                class="text-red-600 hover:text-red-900">Eliminar</a>
+                            {% else %}
+                            <a href="/assessments/{{ assessment.id }}/reopen"
+                                class="text-purple-600 hover:text-purple-900">Reabrir</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-white shadow-sm border border-gray-200 rounded-lg p-12 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No hay evaluaciones creadas</h3>
+        <p class="mt-2 text-sm text-gray-500">Comienza creando tu primera evaluación de riesgos.</p>
+        <div class="mt-6">
+            <a href="/assessments/create"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                Crear la primera evaluación
+            </a>
+        </div>
+    </div>
+    {% endif %}
 </div>
-{% else %}
-<div style="background: #fff3e0; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
-    No hay evaluación activa seleccionada.
-    <a href="/assessments/select">Seleccionar una evaluación</a>
-</div>
-{% endif %}
-
-<div style="margin-bottom: 1rem;">
-    <a href="/assessments/create"><button>+ Nueva Evaluación</button></a>
-    <a href="/assessments/select"><button>Seleccionar Activa</button></a>
-</div>
-
-{% if assessments %}
-<table>
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Período</th>
-            <th>Estado</th>
-            <th>Creador</th>
-            <th>Fecha Creación</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for assessment in assessments %}
-        <tr>
-            <td>{{ assessment.name }}</td>
-            <td>{{ assessment.description or '-' }}</td>
-            <td>{{ assessment.period }}</td>
-            <td>
-                {% if assessment.status == 'active' %}
-                <span style="background: #4caf50; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">Activa</span>
-                {% elif assessment.status == 'archived' %}
-                <span style="background: #ff9800; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">Archivada</span>
-                {% else %}
-                <span style="background: #9e9e9e; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">Cerrada</span>
-                {% endif %}
-            </td>
-            <td>{{ assessment.created_by or '-' }}</td>
-            <td>{{ assessment.created_at[:10] if assessment.created_at else '-' }}</td>
-            <td>
-                {% if assessment.status == 'active' %}
-                    <a href="/assessments/{{ assessment.id }}/set-active" style="color: #4caf50;">Activar</a>
-                    <a href="/assessments/{{ assessment.id }}/edit">Editar</a>
-                    <a href="/assessments/{{ assessment.id }}/archive" onclick="return confirm('¿Archivar esta evaluación?')">Archivar</a>
-                    <a href="/assessments/{{ assessment.id }}/close" onclick="return confirm('¿Cerrar esta evaluación? Se conservará el histórico.')">Cerrar</a>
-                {% elif assessment.status == 'archived' %}
-                    <a href="/assessments/{{ assessment.id }}/edit">Editar</a>
-                    <a href="/assessments/{{ assessment.id }}/delete" onclick="return confirm('¿Eliminar esta evaluación? Esta acción no se puede deshacer.')">Eliminar</a>
-                {% else %}
-                    <a href="/assessments/{{ assessment.id }}/reopen">Reabrir</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No hay evaluaciones creadas. <a href="/assessments/create">Crear la primera evaluación</a></p>
-{% endif %}
 {% endblock %}

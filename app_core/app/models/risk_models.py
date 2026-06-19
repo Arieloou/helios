@@ -2,22 +2,23 @@ from datetime import datetime
 from typing import Dict, List, Optional
 import uuid
 
+from .base import db, TimestampMixin
 
-class Threat:
+
+class Threat(db.Model):
+    __tablename__ = "threats"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(255), default="")
+    category = db.Column(db.String(100), default="")
+    description = db.Column(db.Text, default="")
+
     _instances: Dict[str, "Threat"] = {}
 
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        name: str = "",
-        category: str = "",
-        description: str = "",
-    ):
-        self.id = id or str(uuid.uuid4())
-        self.name = name
-        self.category = category
-        self.description = description
-        self._instances[self.id] = self
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.id:
+            self._instances[self.id] = self
 
     def to_dict(self) -> Dict:
         return {
@@ -29,32 +30,33 @@ class Threat:
 
     @classmethod
     def get_by_id(cls, id: str) -> Optional["Threat"]:
-        return cls._instances.get(id)
+        if id in cls._instances:
+            return cls._instances[id]
+        return cls.query.get(id)
 
     @classmethod
     def get_all(cls) -> List["Threat"]:
-        return list(cls._instances.values())
+        return cls.query.all()
 
     @classmethod
     def get_by_category(cls, category: str) -> List["Threat"]:
-        return [t for t in cls._instances.values() if t.category == category]
+        return cls.query.filter_by(category=category).all()
 
 
-class Vulnerability:
+class Vulnerability(db.Model):
+    __tablename__ = "vulnerabilities"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(255), default="")
+    category = db.Column(db.String(100), default="")
+    description = db.Column(db.Text, default="")
+
     _instances: Dict[str, "Vulnerability"] = {}
 
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        name: str = "",
-        category: str = "",
-        description: str = "",
-    ):
-        self.id = id or str(uuid.uuid4())
-        self.name = name
-        self.category = category
-        self.description = description
-        self._instances[self.id] = self
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.id:
+            self._instances[self.id] = self
 
     def to_dict(self) -> Dict:
         return {
@@ -66,61 +68,59 @@ class Vulnerability:
 
     @classmethod
     def get_by_id(cls, id: str) -> Optional["Vulnerability"]:
-        return cls._instances.get(id)
+        if id in cls._instances:
+            return cls._instances[id]
+        return cls.query.get(id)
 
     @classmethod
     def get_all(cls) -> List["Vulnerability"]:
-        return list(cls._instances.values())
+        return cls.query.all()
 
     @classmethod
     def get_by_category(cls, category: str) -> List["Vulnerability"]:
-        return [v for v in cls._instances.values() if v.category == category]
+        return cls.query.filter_by(category=category).all()
 
 
-class AssetThreatMapping:
+class AssetThreatMapping(db.Model, TimestampMixin):
+    __tablename__ = "asset_threat_mappings"
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    assessment_id = db.Column(db.String(36), db.ForeignKey("assessments.id"), nullable=True)
+    asset_id = db.Column(db.String(36), db.ForeignKey("assets.id"), nullable=False)
+    threat_id = db.Column(db.String(36), db.ForeignKey("threats.id"), nullable=False)
+    vulnerability_id = db.Column(db.String(36), db.ForeignKey("vulnerabilities.id"), nullable=False)
+    probability = db.Column(db.Integer, default=1)
+    degradation = db.Column(db.Float, default=0.5)
+    impact = db.Column(db.Float, nullable=True)
+    risk_inherent = db.Column(db.Float, nullable=True)
+    maturity = db.Column(db.Float, default=0.0)
+    residual_risk = db.Column(db.Float, nullable=True)
+
     _instances: Dict[str, "AssetThreatMapping"] = {}
 
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        assessment_id: Optional[str] = None,
-        asset_id: str = "",
-        threat_id: str = "",
-        vulnerability_id: str = "",
-        probability: int = 1,
-        degradation: float = 0.5,
-        impact: Optional[float] = None,
-        risk_inherent: Optional[float] = None,
-        maturity: float = 0.0,
-        residual_risk: Optional[float] = None,
-        created_at: Optional[datetime] = None,
-        updated_at: Optional[datetime] = None,
-    ):
-        self.id = id or str(uuid.uuid4())
-        self.assessment_id = assessment_id
-        self.asset_id = asset_id
-        self.threat_id = threat_id
-        self.vulnerability_id = vulnerability_id
-        self.probability = max(1, min(5, probability))
-        self.degradation = max(0.0, min(1.0, degradation))
-        self.impact = impact
-        self.risk_inherent = risk_inherent
-        self.maturity = max(0.0, min(1.0, maturity))
-        self.residual_risk = residual_risk
-        self.created_at = created_at or datetime.now()
-        self.updated_at = updated_at
-        self._instances[self.id] = self
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.id:
+            self._instances[self.id] = self
+        if self.probability:
+            self.probability = max(1, min(5, self.probability))
+        if self.degradation:
+            self.degradation = max(0.0, min(1.0, self.degradation))
+        if self.maturity:
+            self.maturity = max(0.0, min(1.0, self.maturity))
 
     def calculate_risk(self, v_total: int) -> None:
         self.impact = v_total * self.degradation
         self.risk_inherent = self.impact * self.probability
         self.calculate_residual_risk()
         self.updated_at = datetime.now()
+        db.session.commit()
 
     def calculate_residual_risk(self) -> None:
         if self.risk_inherent is not None:
             self.residual_risk = self.risk_inherent * (1 - self.maturity)
             self.updated_at = datetime.now()
+            db.session.commit()
 
     def set_maturity(self, maturity: float) -> None:
         self.maturity = max(0.0, min(1.0, maturity))
@@ -146,19 +146,21 @@ class AssetThreatMapping:
 
     @classmethod
     def get_by_id(cls, id: str) -> Optional["AssetThreatMapping"]:
-        return cls._instances.get(id)
+        if id in cls._instances:
+            return cls._instances[id]
+        return cls.query.get(id)
 
     @classmethod
     def get_all(cls) -> List["AssetThreatMapping"]:
-        return list(cls._instances.values())
+        return cls.query.all()
 
     @classmethod
     def get_by_asset(cls, asset_id: str) -> List["AssetThreatMapping"]:
-        return [m for m in cls._instances.values() if m.asset_id == asset_id]
+        return cls.query.filter_by(asset_id=asset_id).all()
 
     @classmethod
     def get_by_assessment(cls, assessment_id: str) -> List["AssetThreatMapping"]:
-        return [m for m in cls._instances.values() if m.assessment_id == assessment_id]
+        return cls.query.filter_by(assessment_id=assessment_id).all()
 
     @classmethod
     def create(
@@ -179,6 +181,8 @@ class AssetThreatMapping:
             probability=probability,
             degradation=degradation,
         )
+        db.session.add(mapping)
+        db.session.commit()
         if v_total is not None:
             mapping.calculate_risk(v_total)
         return mapping
@@ -205,3 +209,5 @@ class AssetThreatMapping:
     def delete(self) -> None:
         if self.id in self._instances:
             del self._instances[self.id]
+        db.session.delete(self)
+        db.session.commit()

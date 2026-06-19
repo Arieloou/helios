@@ -7,7 +7,6 @@ from app.services.assessment_service import AssessmentService
 
 ai_bp = Blueprint("ai", __name__, url_prefix="/ai")
 
-
 @ai_bp.route("/status")
 def status():
     available = AIAnalysisService.is_available()

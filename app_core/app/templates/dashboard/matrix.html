@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Matriz de Riesgo 5x5 - Helios{% endblock %}
+
+{% block content %}
+<h1>Matriz de Riesgo 5x5</h1>
+
+{% if not active_assessment %}
+<div style="background: #fff3e0; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    No hay evaluación activa. <a href="/assessments/select">Seleccionar una evaluación</a> primero.
+</div>
+{% else %}
+<div style="background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <strong>Evaluación activa:</strong> {{ active_assessment.name }}
+</div>
+{% endif %}
+
+<div style="margin-bottom: 1rem;">
+    <a href="/dashboard/overview"><button>Resumen Ejecutivo</button></a>
+    <a href="/dashboard/risk-journey"><button>Viaje del Riesgo</button></a>
+    <a href="/dashboard/export"><button>Exportar</button></a>
+</div>
+
+<style>
+.matrix-table { border-collapse: collapse; margin: 0 auto; }
+.matrix-table th, .matrix-table td { border: 1px solid #333; width: 80px; height: 60px; text-align: center; vertical-align: middle; }
+.matrix-table th { background: #f5f5f5; }
+.matrix-cell { position: relative; cursor: pointer; }
+.matrix-cell:hover { opacity: 0.8; }
+.cell-value { font-size: 1.2rem; font-weight: bold; }
+.cell-count { font-size: 0.8rem; }
+.axis-label { font-weight: bold; }
+.legend { display: flex; gap: 1rem; justify-content: center; margin: 1rem 0; }
+.legend-item { display: flex; align-items: center; gap: 0.5rem; }
+.legend-color { width: 20px; height: 20px; border-radius: 4px; }
+</style>
+
+<div class="legend">
+    <div class="legend-item"><div class="legend-color" style="background: #4caf50;"></div>Bajo (1-4)</div>
+    <div class="legend-item"><div class="legend-color" style="background: #ffc107;"></div>Medio (5-9)</div>
+    <div class="legend-item"><div class="legend-color" style="background: #ff9800;"></div>Alto (10-16)</div>
+    <div class="legend-item"><div class="legend-color" style="background: #f44336;"></div>Crítico (17-25)</div>
+</div>
+
+<table class="matrix-table">
+    <thead>
+        <tr>
+            <th></th>
+            <th colspan="5" class="axis-label">Probabilidad →</th>
+        </tr>
+        <tr>
+            <th>Impacto ↓</th>
+            <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="axis-label">5</td>
+            {% for col in range(1, 6) %}
+            <td class="matrix-cell" id="cell-5-{{ col }}" style="background: #ffc107;">
+                <div class="cell-value">-</div>
+                <div class="cell-count"></div>
+            </td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td class="axis-label">4</td>
+            {% for col in range(1, 6) %}
+            <td class="matrix-cell" id="cell-4-{{ col }}" style="background: #4caf50;">
+                <div class="cell-value">-</div>
+                <div class="cell-count"></div>
+            </td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td class="axis-label">3</td>
+            {% for col in range(1, 6) %}
+            <td class="matrix-cell" id="cell-3-{{ col }}" style="background: #4caf50;">
+                <div class="cell-value">-</div>
+                <div class="cell-count"></div>
+            </td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td class="axis-label">2</td>
+            {% for col in range(1, 6) %}
+            <td class="matrix-cell" id="cell-2-{{ col }}" style="background: #4caf50;">
+                <div class="cell-value">-</div>
+                <div class="cell-count"></div>
+            </td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td class="axis-label">1</td>
+            {% for col in range(1, 6) %}
+            <td class="matrix-cell" id="cell-1-{{ col }}" style="background: #4caf50;">
+                <div class="cell-value">-</div>
+                <div class="cell-count"></div>
+            </td>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
+
+<script>
+const matrixData = {{ matrix_data.matrix | tojson }};
+
+function getCellColor(impact, prob) {
+    const risk = impact * prob;
+    if (risk >= 17) return '#f44336';
+    if (risk >= 10) return '#ff9800';
+    if (risk >= 5) return '#ffc107';
+    return '#4caf50';
+}
+
+function updateMatrix() {
+    for (let impact = 1; impact <= 5; impact++) {
+        for (let prob = 1; prob <= 5; prob++) {
+            const cellId = `cell-${impact}-${prob}`;
+            const cell = document.getElementById(cellId);
+            if (cell) {
+                const key = `${impact}-${prob}`;
+                const data = matrixData[key];
+                if (data && data.ri_count > 0) {
+                    cell.style.background = getCellColor(impact, prob);
+                    cell.querySelector('.cell-value').textContent = data.risk_value;
+                    cell.querySelector('.cell-count').textContent = `${data.ri_count} riesgos`;
+                } else {
+                    cell.style.background = getCellColor(impact, prob);
+                    cell.querySelector('.cell-value').textContent = impact * prob;
+                    cell.querySelector('.cell-count').textContent = '';
+                }
+            }
+        }
+    }
+}
+
+updateMatrix();
+</script>
+{% endblock %}

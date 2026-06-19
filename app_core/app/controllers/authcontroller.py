@@ -1,37 +1,53 @@
 """
-Controlador de autenticación.
-Gestiona login, logout y control de acceso por roles.
-Utiliza el cliente gRPC para cifrar datos sensibles.
+Authentication Controller.
+Handles login, logout, and session management.
+Uses AuthService for credential validation and SessionService for user resolution.
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, current_app, flash
+from flask import (
+    Blueprint, render_template, request, redirect,
+    url_for, session, flash,
+)
+
+from app.services.auth_service import AuthService
+from app.services.session_service import SessionService
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    """Handle login form display and submission."""
+    # Redirect if already logged in
+    if SessionService.is_authenticated():
+        return redirect(url_for("auth.dashboard"))
+
     if request.method == "POST":
-        username = request.form.get("username", "")
+        username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
 
+        # Validate required fields
         if not username or not password:
             flash("Usuario y contraseña son requeridos.", "error")
             return render_template("auth/login.html")
 
         try:
-            encryption = current_app.extensions["encryption"]
-            encrypted_username = encryption.encrypt(username)
-            encrypted_password = encryption.encrypt(password)
+            # Authenticate via service layer
+            result = AuthService.authenticate(username, password)
 
-            session["user"] = {
-                "username_encrypted": encrypted_username,
-                "password_encrypted": encrypted_password,
-                "role": "Agent",
-            }
-
-            flash("Inicio de sesión exitoso.", "success")
-            return redirect(url_for("auth.dashboard"))
+            if result["success"]:
+                # Store only the user_id and role in the session cookie
+                # The username is NOT stored — it will be resolved fresh
+                # from the DB on each request by SessionService
+                session["user"] = {
+                    "user_id": result["user"]["id"],
+                    "role": result["role"],
+                }
+                flash("Inicio de sesión exitoso.", "success")
+                return redirect(url_for("auth.dashboard"))
+            else:
+                flash(result["error"], "error")
+                return render_template("auth/login.html")
 
         except ConnectionError as e:
             flash(f"Servicio de cifrado no disponible: {e}", "error")
@@ -45,6 +61,7 @@ def login():
 
 @auth_bp.route("/logout")
 def logout():
+    """Clear session and redirect to login."""
     session.clear()
     flash("Sesión cerrada.", "info")
     return redirect(url_for("auth.login"))
@@ -52,14 +69,14 @@ def logout():
 
 @auth_bp.route("/dashboard")
 def dashboard():
-    user = session.get("user")
+    """Display the main dashboard after login."""
+    # SessionService resolves user from DB via before_request hook
+    user = SessionService.get_current_user()
     if not user:
         return redirect(url_for("auth.login"))
 
-    try:
-        encryption = current_app.extensions["encryption"]
-        decrypted_username = encryption.decrypt(user["username_encrypted"])
-    except Exception:
-        decrypted_username = "[cifrado]"
-
-    return render_template("dashboard.html", username=decrypted_username, role=user.get("role"))
+    return render_template(
+        "dashboard.html",
+        username=user.username,
+        role=user.role,
+    )
