@@ -11,10 +11,13 @@ from flask import Flask
 from .config import settings
 from .extensions import encryption_ext
 from .database import db
+from flask_wtf.csrf import CSRFProtect
 
 
 def create_app() -> Flask:
     app = Flask(__name__)
+    csrf = CSRFProtect()
+    csrf.init_app(app)
 
     _setup_logging(app)
     _load_config(app)
