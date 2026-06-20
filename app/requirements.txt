@@ -1,0 +1,23 @@
+# =============================================================================
+# Helios Backend — Dependencias
+# =============================================================================
+
+# FastApi (Framework REST API)
+fastapi[standard]
+
+# gRPC (cliente)
+grpcio>=1.80.0
+protobuf>=6.31.1
+
+# HTTP client (Ollama AI integration)
+requests>=2.34.0
+
+# Cifrado
+cryptography>=49.0.0
+
+# Base de datos
+sqlalchemy[asyncio]
+asyncpg
+
+# Migraciones
+alembic
