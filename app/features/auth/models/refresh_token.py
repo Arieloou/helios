@@ -1,4 +1,5 @@
-# models.py
+# features/auth/models/refresh_token.py
+
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
@@ -13,6 +14,3 @@ class RefreshToken(TimestampMixin, Base):
     token_hash: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     revoked: Mapped[bool] = mapped_column(Boolean, default=False)
-
-    # Model relationships
-    user: Mapped["User"] = relationship(back_populates="refresh_tokens")

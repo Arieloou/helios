@@ -1,11 +1,8 @@
+# features/user/schemas/user_schema.py
+
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
-from enum import Enum
-
-class UserRole(str, Enum):
-    ADMIN = "admin"
-    AGENT = "agent"
 
 # DTO para crear un usuario
 class UserCreate(BaseModel):
@@ -13,6 +10,13 @@ class UserCreate(BaseModel):
     email: str
     password: str
     role: UserRole
+
+# schemas.py — todos opcionales, así Pydantic sabe distinguir "no vino" de "vino vacío"
+class UserUpdate(BaseModel):
+    name: str | None = None
+    email: str | None = None
+    password: str | None = None
+    role: str | None = None
 
 # DTO para devolver los datos al frontend (Reemplaza a to_dict)
 class UserOut(BaseModel):
@@ -26,3 +30,10 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True # Permite leer directamente desde SQLAlchemy
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class AuthMessageResponse(BaseModel):
+    message: str

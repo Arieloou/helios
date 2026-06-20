@@ -1,6 +1,6 @@
-# Import shared types, schemas, and dependencies
-from app.core.schemas import CurrentUser
+# features/assessment/services/assessment_service.py
 
+# Import shared types, schemas, and dependencies
 from datetime import datetime, timezone
 
 # Import feature-specific types, schemas, and models
@@ -8,11 +8,14 @@ from ..repositories import AssessmentRepository
 from ..schemas import AssessmentStatus, AssessmentCreate
 from ..models import Assessment
 
+from app.core.decorators.audit_decorator import audit
+
 class AssessmentService:
     def __init__(self, repository: AssessmentRepository):
         self.repository = repository
 
-    async def create_assessment(self, assessment: AssessmentCreate, current_user: CurrentUser):
+    @audit("create_assessment")
+    async def create_assessment(self, assessment: AssessmentCreate, current_user_id: str):
         if await self.repository.get_by_name(assessment.name):
             raise ValueError("La evaluación ya existe")
                 
@@ -21,10 +24,15 @@ class AssessmentService:
             description=assessment.description,
             period=assessment.period,
             status=AssessmentStatus.ACTIVE.value,
-            created_by=current_user.id
+            created_by=current_user_id
         )
         return await self.repository.save(assessment)
 
+    # Update assessment
+    @audit("update_assessment")
+    
+
+    @audit("close_assessment")  
     async def close_assessment(self, assessment_id: str):
         assessment = await self.repository.get_by_id(assessment_id)
         
@@ -36,6 +44,7 @@ class AssessmentService:
         
         return await self.repository.save(assessment)
 
+    @audit("archive_assessment")
     async def archive_assessment(self, assessment_id: str):
         assessment = await self.repository.get_by_id(assessment_id)
 
@@ -47,6 +56,7 @@ class AssessmentService:
         
         return await self.repository.save(assessment)
 
+    @audit("reopen_assessment")
     async def reopen_assessment(self, assessment_id: str):
         assessment = await self.repository.get_by_id(assessment_id)
 

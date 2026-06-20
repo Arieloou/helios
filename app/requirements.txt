@@ -14,6 +14,8 @@ requests>=2.34.0
 
 # Cifrado
 cryptography>=49.0.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.1.0
 
 # Base de datos
 sqlalchemy[asyncio]
@@ -21,3 +23,9 @@ asyncpg
 
 # Migraciones
 alembic
+
+# Redis
+redis>=5.0.0
+
+# Hashing de contraseñas
+passlib[bcrypt]

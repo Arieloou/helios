@@ -1,4 +1,5 @@
-# models.py
+# features/user/models/user.py
+
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey
 import uuid
 

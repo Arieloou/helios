@@ -1,3 +1,5 @@
+# features/user/repositories/user_repository.py
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Optional, List
@@ -30,6 +32,11 @@ class UserRepository:
 
     async def get_active_users(self) -> List[User]:
         stmt = select(User).where(User.is_active == True)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_inactive_users(self) -> List[User]:
+        stmt = select(User).where(User.is_active == False)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
