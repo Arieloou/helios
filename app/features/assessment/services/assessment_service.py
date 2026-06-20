@@ -1,5 +1,9 @@
-# features/assessment/services.py
+# Import shared types, schemas, and dependencies
+from app.core.schemas import CurrentUser
+
 from datetime import datetime, timezone
+
+# Import feature-specific types, schemas, and models
 from ..repositories import AssessmentRepository
 from ..schemas import AssessmentStatus, AssessmentCreate
 from ..models import Assessment
@@ -8,7 +12,7 @@ class AssessmentService:
     def __init__(self, repository: AssessmentRepository):
         self.repository = repository
 
-    async def create_assessment(self, assessment: AssessmentCreate, current_user_id: str):
+    async def create_assessment(self, assessment: AssessmentCreate, current_user: CurrentUser):
         if await self.repository.get_by_name(assessment.name):
             raise ValueError("La evaluación ya existe")
                 
@@ -17,7 +21,7 @@ class AssessmentService:
             description=assessment.description,
             period=assessment.period,
             status=AssessmentStatus.ACTIVE.value,
-            created_by=current_user_id
+            created_by=current_user.id
         )
         return await self.repository.save(assessment)
 
